@@ -31,7 +31,30 @@
 
   <div id="gebruikers" class="tabcontent">
     <h2>Gebruikersbeheer</h2>
-    <p>🛠 Inhoud volgt in Blok 2b...</p>
+    <div>
+      <h3>Gebruiker toevoegen</h3>
+      <input type="text" id="nieuweNaam" placeholder="Naam">
+      <input type="text" id="nieuweGebruikersnaam" placeholder="Gebruikersnaam">
+      <input type="password" id="nieuweWachtwoord" placeholder="Wachtwoord">
+      <select id="nieuweRol">
+        <option value="admin">Admin</option>
+        <option value="expert">Expert</option>
+      </select>
+      <button onclick="voegGebruikerToe()">Toevoegen</button>
+    </div>
+
+    <h3>Bestaande gebruikers</h3>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Naam</th>
+          <th>Gebruikersnaam</th>
+          <th>Rol</th>
+          <th>Acties</th>
+        </tr>
+      </thead>
+      <tbody id="gebruikersTabel"></tbody>
+    </table>
   </div>
 
   <div id="rapport" class="tabcontent">
@@ -54,6 +77,66 @@
 
     // Open standaard eerste tab
     openTab('gebruikers');
+
+    let gebruikers = JSON.parse(localStorage.getItem("gebruikers")) || [
+      { naam: "Paul", rol: "admin", gebruikersnaam: "Paul", wachtwoord: "Brunsmann4a" }
+    ];
+
+    function toonGebruikers() {
+      const tbody = document.getElementById("gebruikersTabel");
+      tbody.innerHTML = "";
+      gebruikers.forEach((gebruiker, index) => {
+        const rij = document.createElement("tr");
+        rij.innerHTML = `
+          <td>${gebruiker.naam}</td>
+          <td>${gebruiker.gebruikersnaam}</td>
+          <td>${gebruiker.rol}</td>
+          <td>
+            <button onclick="bewerkGebruiker(${index})">✏️</button>
+            <button onclick="verwijderGebruiker(${index})">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(rij);
+      });
+    }
+
+    function voegGebruikerToe() {
+      const naam = document.getElementById("nieuweNaam").value;
+      const gebruikersnaam = document.getElementById("nieuweGebruikersnaam").value;
+      const wachtwoord = document.getElementById("nieuweWachtwoord").value;
+      const rol = document.getElementById("nieuweRol").value;
+      gebruikers.push({ naam, gebruikersnaam, wachtwoord, rol });
+      localStorage.setItem("gebruikers", JSON.stringify(gebruikers));
+      toonGebruikers();
+    }
+
+    function verwijderGebruiker(index) {
+      if (confirm("Weet je zeker dat je deze gebruiker wilt verwijderen?")) {
+        gebruikers.splice(index, 1);
+        localStorage.setItem("gebruikers", JSON.stringify(gebruikers));
+        toonGebruikers();
+      }
+    }
+
+    function bewerkGebruiker(index) {
+      const gebruiker = gebruikers[index];
+      const nieuweNaam = prompt("Nieuwe naam:", gebruiker.naam);
+      const nieuweGebruikersnaam = prompt("Nieuwe gebruikersnaam:", gebruiker.gebruikersnaam);
+      const nieuweWachtwoord = prompt("Nieuw wachtwoord:", gebruiker.wachtwoord);
+      const nieuweRol = prompt("Nieuwe rol (admin/expert):", gebruiker.rol);
+      if (nieuweNaam && nieuweGebruikersnaam && nieuweWachtwoord && nieuweRol) {
+        gebruikers[index] = {
+          naam: nieuweNaam,
+          gebruikersnaam: nieuweGebruikersnaam,
+          wachtwoord: nieuweWachtwoord,
+          rol: nieuweRol
+        };
+        localStorage.setItem("gebruikers", JSON.stringify(gebruikers));
+        toonGebruikers();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", toonGebruikers);
   </script>
 </body>
 </html>
