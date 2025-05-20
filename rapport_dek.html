@@ -1,1 +1,78 @@
-<html><body><h1>Dekbeslag & Uitrusting</h1><p>Wordt gebouwd...</p></body></html>
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Rapport – Dekbeslag & Uitrusting</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/config.js"></script>
+  <script src="/js/app.js"></script>
+  <style>
+    textarea, select {
+      width: 100%;
+      margin-bottom: 1em;
+    }
+    .labelblok {
+      font-weight: bold;
+      margin-top: 1em;
+    }
+    .preview {
+      max-width: 300px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dekbeslag & Uitrusting</h1>
+  <p>Inspectie van bolders, kikkerblokken, kikkers, relingen en andere dekuitrusting. Er wordt gelet op bevestiging, corrosie, waterdichtheid en schade.</p>
+
+  <label class="labelblok">Beoordeling van dekuitrusting:</label>
+  <select id="dek_staat">
+    <option value="">-- Kies beoordeling --</option>
+    <option>Goed</option>
+    <option>Redelijk</option>
+    <option>Voldoende</option>
+    <option>Matig</option>
+    <option>Slecht</option>
+  </select>
+
+  <label class="labelblok">Opmerkingen / bijzonderheden:</label>
+  <textarea id="dek_opmerkingen" rows="4" placeholder="Bijv. voorste bolder licht los, alle kikkers verder goed bevestigd."></textarea>
+  <button onclick="vraagDeksuggestie()">💡 AI-suggestie</button>
+
+  <label class="labelblok">Foto(‘s) van dekbeslag:</label>
+  <input type="file" accept="image/*" onchange="toonDekPreview(event)">
+  <img id="dek_foto_preview" class="preview" src="">
+
+  <script>
+    function vraagDeksuggestie() {
+      if (!OPENAI_API_KEY) return alert("Geen API-sleutel ingevuld.");
+      const prompt = "Je bent een expert in bootinspecties. Geef een voorbeeldtekst over dekbeslag waarbij alle kikkers goed vast zitten behalve één losse bolder.";
+      fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + OPENAI_API_KEY
+        },
+        body: JSON.stringify({
+          model: "gpt-4",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 150
+        })
+      }).then(r => r.json()).then(data => {
+        document.getElementById("dek_opmerkingen").value = data.choices[0].message.content.trim();
+      });
+    }
+
+    function toonDekPreview(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        document.getElementById("dek_foto_preview").src = event.target.result;
+        localStorage.setItem("dek_foto", event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>
