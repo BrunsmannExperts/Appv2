@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Rapport exporteren met foto's</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <h1>Export met foto's</h1>
+  <button onclick="exporteerNaarWord()">📄 Download Word</button>
+  <div id="rapportInhoud" style="margin-top: 2em;"></div>
+
+  <script>
+    function laadRapport() {
+      const data = JSON.parse(localStorage.getItem("rapport_ingevuld")) || {};
+      const container = document.getElementById("rapportInhoud");
+
+      const hoofdstukken = {};
+
+      Object.entries(data).forEach(([key, value]) => {
+        const [hoofdstuk, veld] = key.split(" – ");
+        if (!hoofdstukken[hoofdstuk]) hoofdstukken[hoofdstuk] = [];
+        hoofdstukken[hoofdstuk].push({ veld, tekst: value });
+      });
+
+      Object.entries(hoofdstukken).forEach(([hoofdstuk, velden], hi) => {
+        const h2 = document.createElement("h2");
+        h2.textContent = hoofdstuk;
+        container.appendChild(h2);
+
+        velden.forEach((item, vi) => {
+          const h3 = document.createElement("h3");
+          h3.textContent = item.veld;
+          const p = document.createElement("p");
+          p.textContent = item.tekst || "(leeg)";
+          container.appendChild(h3);
+          container.appendChild(p);
+
+          const fotoKey = `foto-${hi * 100 + vi}`;
+          const fotoData = localStorage.getItem(fotoKey);
+          if (fotoData) {
+            const img = document.createElement("img");
+            img.src = fotoData;
+            img.style.maxWidth = "400px";
+            img.style.marginBottom = "1em";
+            container.appendChild(img);
+          }
+        });
+      });
+    }
+
+    function exporteerNaarWord() {
+      const content = document.getElementById("rapportInhoud").innerHTML;
+      const blob = new Blob(['<html><head><meta charset="utf-8"></head><body>' + content + '</body></html>'], {
+        type: "application/msword"
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "rapport_met_fotos.doc";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.addEventListener("DOMContentLoaded", laadRapport);
+  </script>
+</body>
+</html>
