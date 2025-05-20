@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Instellingen – Opmaak & Thema</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/config.js"></script>
+  <script src="/js/app.js"></script>
+</head>
+<body>
+  <h2>Opmaak & Thema</h2>
+  <p>Pas hier het uiterlijk van de app aan. Wijzigingen worden direct toegepast en opgeslagen.</p>
+
+  <label>Kleur knoppen:
+    <input type="color" id="kleur" value="#007bff">
+  </label><br><br>
+
+  <label>Tekstkleur:
+    <input type="color" id="tekstkleur" value="#000000">
+  </label><br><br>
+
+  <label>Achtergrondkleur:
+    <input type="color" id="achtergrond" value="#ffffff">
+  </label><br><br>
+
+  <label>Lettergrootte:
+    <select id="lettergrootte">
+      <option value="14px">Klein</option>
+      <option value="16px" selected>Normaal</option>
+      <option value="18px">Groot</option>
+    </select>
+  </label><br><br>
+
+  <label>Knopvorm:
+    <select id="randen">
+      <option value="0px">Hoekig</option>
+      <option value="6px" selected>Afgerond</option>
+      <option value="12px">Extra rond</option>
+    </select>
+  </label><br><br>
+
+  <button onclick="opslaanThema()">Opslaan</button>
+
+  <script>
+    function opslaanThema() {
+      const theme = {
+        primaryColor: document.getElementById("kleur").value,
+        textColor: document.getElementById("tekstkleur").value,
+        backgroundColor: document.getElementById("achtergrond").value,
+        fontSize: document.getElementById("lettergrootte").value,
+        borderRadius: document.getElementById("randen").value,
+      };
+      localStorage.setItem("theme", JSON.stringify(theme));
+      location.reload();
+    }
+
+    function laadThema() {
+      const theme = JSON.parse(localStorage.getItem("theme"));
+      if (!theme) return;
+      document.getElementById("kleur").value = theme.primaryColor;
+      document.getElementById("tekstkleur").value = theme.textColor;
+      document.getElementById("achtergrond").value = theme.backgroundColor;
+      document.getElementById("lettergrootte").value = theme.fontSize;
+      document.getElementById("randen").value = theme.borderRadius;
+    }
+
+    document.addEventListener("DOMContentLoaded", laadThema);
+  </script>
+</body>
+</html>
