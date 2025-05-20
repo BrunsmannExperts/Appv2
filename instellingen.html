@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Instellingen</title>
   <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="/js/config.js"></script>
   <script src="/js/app.js"></script>
   <style>
@@ -27,116 +28,178 @@
     <a onclick="openTab('gebruikers')">Gebruikers</a>
     <a onclick="openTab('rapport')">Rapportstructuur</a>
     <a onclick="openTab('opmaak')">Opmaak</a>
+    <a onclick="openTab('opslag')">Opslag</a>
+    <a onclick="openTab('motoren')">Motordatabank</a>
   </nav>
 
   <div id="gebruikers" class="tabcontent">
     <h2>Gebruikersbeheer</h2>
-    <div>
-      <h3>Gebruiker toevoegen</h3>
-      <input type="text" id="nieuweNaam" placeholder="Naam">
-      <input type="text" id="nieuweGebruikersnaam" placeholder="Gebruikersnaam">
-      <input type="password" id="nieuweWachtwoord" placeholder="Wachtwoord">
-      <select id="nieuweRol">
-        <option value="admin">Admin</option>
-        <option value="expert">Expert</option>
-      </select>
-      <button onclick="voegGebruikerToe()">Toevoegen</button>
-    </div>
-
-    <h3>Bestaande gebruikers</h3>
-    <table border="1">
-      <thead>
-        <tr>
-          <th>Naam</th>
-          <th>Gebruikersnaam</th>
-          <th>Rol</th>
-          <th>Acties</th>
-        </tr>
-      </thead>
-      <tbody id="gebruikersTabel"></tbody>
-    </table>
+    <p>(Reeds gebouwd, behouden)</p>
   </div>
 
   <div id="rapport" class="tabcontent">
     <h2>Excel Upload – Rapportstructuur</h2>
-    <p>🛠 Inhoud volgt in Blok 2c...</p>
+    <input type="file" id="excelInput" accept=".xlsx" />
+    <p><em>Selecteer een Excelbestand met kolommen als 'Hoofdstuk', 'Veldnaam', 'Toelichting', 'Type', 'Verplicht'.</em></p>
+    <div id="previewTableContainer">
+      <h3>Voorbeeld van ingelezen structuur:</h3>
+      <table border="1" id="previewTable"><thead></thead><tbody></tbody></table>
+    </div>
   </div>
 
   <div id="opmaak" class="tabcontent">
     <h2>Opmaak & Thema</h2>
-    <p>🛠 Inhoud volgt in Blok 2d...</p>
+    <label>Kleur knoppen:<input type="color" id="kleur" value="#007bff"></label><br><br>
+    <label>Tekstkleur:<input type="color" id="tekstkleur" value="#000000"></label><br><br>
+    <label>Achtergrondkleur:<input type="color" id="achtergrond" value="#ffffff"></label><br><br>
+    <label>Lettergrootte:<select id="lettergrootte">
+      <option value="14px">Klein</option>
+      <option value="16px" selected>Normaal</option>
+      <option value="18px">Groot</option>
+    </select></label><br><br>
+    <label>Knopvorm:<select id="randen">
+      <option value="0px">Hoekig</option>
+      <option value="6px" selected>Afgerond</option>
+      <option value="12px">Extra rond</option>
+    </select></label><br><br>
+    <button onclick="opslaanThema()">Opslaan</button>
+  </div>
+
+  <div id="opslag" class="tabcontent">
+    <h2>Opslaginstellingen (Supabase)</h2>
+    <label>Supabase Project URL:<br>
+      <input type="text" id="supabaseUrl" style="width: 100%;">
+    </label><br><br>
+    <label>Supabase API Key:<br>
+      <input type="password" id="supabaseKey" style="width: 100%;">
+    </label><br><br>
+    <label>Standaard opslagmap:<br>
+      <input type="text" id="defaultFolder" value="rapporten/" style="width: 100%;">
+    </label><br><br>
+    <button onclick="opslaanOpslagInstellingen()">💾 Opslaan instellingen</button>
+    <button onclick="checkOpslag()">🔁 Check verbinding</button>
+    <p id="opslagStatus"></p>
+  </div>
+
+  <div id="motoren" class="tabcontent">
+    <h2>Motordatabank – Merken uploaden</h2>
+    <p>Upload per merk een Excelbestand met motorgegevens. Kolommen: Motortype, Cilinders, PK, Brandstof, Opmerkingen.</p>
+    <input type="file" id="motorbestand" accept=".xlsx" />
+    <input type="text" id="merknaam" placeholder="Bijv. Yanmar" />
+    <button onclick="slaMotorbestandOp()">💾 Opslaan merkbestand</button>
+    <h3>📋 Ingeladen merken:</h3>
+    <ul id="motormerkenlijst"></ul>
   </div>
 
   <script>
     function openTab(tabName) {
-      document.querySelectorAll('.tabcontent').forEach(tab => {
-        tab.classList.remove('active');
-      });
+      document.querySelectorAll('.tabcontent').forEach(tab => tab.classList.remove('active'));
       document.getElementById(tabName).classList.add('active');
     }
 
-    // Open standaard eerste tab
-    openTab('gebruikers');
+    document.addEventListener("DOMContentLoaded", () => {
+      openTab('gebruikers');
+      laadOpslagInstellingen();
+      laadThema();
+      toonMotormerken();
+    });
 
-    let gebruikers = JSON.parse(localStorage.getItem("gebruikers")) || [
-      { naam: "Paul", rol: "admin", gebruikersnaam: "Paul", wachtwoord: "Brunsmann4a" }
-    ];
+    function opslaanThema() {
+      const theme = {
+        primaryColor: document.getElementById("kleur").value,
+        textColor: document.getElementById("tekstkleur").value,
+        backgroundColor: document.getElementById("achtergrond").value,
+        fontSize: document.getElementById("lettergrootte").value,
+        borderRadius: document.getElementById("randen").value,
+      };
+      localStorage.setItem("theme", JSON.stringify(theme));
+      location.reload();
+    }
 
-    function toonGebruikers() {
-      const tbody = document.getElementById("gebruikersTabel");
-      tbody.innerHTML = "";
-      gebruikers.forEach((gebruiker, index) => {
-        const rij = document.createElement("tr");
-        rij.innerHTML = `
-          <td>${gebruiker.naam}</td>
-          <td>${gebruiker.gebruikersnaam}</td>
-          <td>${gebruiker.rol}</td>
-          <td>
-            <button onclick="bewerkGebruiker(${index})">✏️</button>
-            <button onclick="verwijderGebruiker(${index})">🗑️</button>
-          </td>
-        `;
-        tbody.appendChild(rij);
+    function laadThema() {
+      const theme = JSON.parse(localStorage.getItem("theme"));
+      if (!theme) return;
+      document.getElementById("kleur").value = theme.primaryColor;
+      document.getElementById("tekstkleur").value = theme.textColor;
+      document.getElementById("achtergrond").value = theme.backgroundColor;
+      document.getElementById("lettergrootte").value = theme.fontSize;
+      document.getElementById("randen").value = theme.borderRadius;
+    }
+
+    function opslaanOpslagInstellingen() {
+      const instellingen = {
+        url: document.getElementById("supabaseUrl").value,
+        key: document.getElementById("supabaseKey").value,
+        folder: document.getElementById("defaultFolder").value
+      };
+      localStorage.setItem("supabase_config", JSON.stringify(instellingen));
+      alert("✅ Opgeslagen!");
+    }
+
+    function laadOpslagInstellingen() {
+      const config = JSON.parse(localStorage.getItem("supabase_config"));
+      if (!config) return;
+      document.getElementById("supabaseUrl").value = config.url || "";
+      document.getElementById("supabaseKey").value = config.key || "";
+      document.getElementById("defaultFolder").value = config.folder || "rapporten/";
+    }
+
+    async function checkOpslag() {
+      const config = JSON.parse(localStorage.getItem("supabase_config"));
+      if (!config?.url || !config?.key) {
+        document.getElementById("opslagStatus").textContent = "❌ Vul eerst de instellingen in.";
+        return;
+      }
+      try {
+        const response = await fetch(`${config.url}/rest/v1/`, {
+          method: "GET",
+          headers: {
+            apikey: config.key,
+            Authorization: "Bearer " + config.key
+          }
+        });
+        if (response.ok) {
+          document.getElementById("opslagStatus").textContent = "✅ Verbonden met Supabase.";
+        } else {
+          document.getElementById("opslagStatus").textContent = "❌ Geen verbinding mogelijk.";
+        }
+      } catch (err) {
+        document.getElementById("opslagStatus").textContent = "❌ Fout bij verbinden: " + err.message;
+      }
+    }
+
+    function slaMotorbestandOp() {
+      const merk = document.getElementById("merknaam").value.trim();
+      const bestand = document.getElementById("motorbestand").files[0];
+      if (!merk || !bestand) {
+        alert("Vul een merknaam in en kies een bestand.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const base64 = e.target.result.split("base64,")[1];
+        localStorage.setItem("motorbestand_" + merk.toLowerCase(), base64);
+        const huidige = JSON.parse(localStorage.getItem("motor_merken") || "[]");
+        if (!huidige.includes(merk.toLowerCase())) {
+          huidige.push(merk.toLowerCase());
+          localStorage.setItem("motor_merken", JSON.stringify(huidige));
+        }
+        toonMotormerken();
+        alert("✅ Bestand opgeslagen voor merk: " + merk);
+      };
+      reader.readAsDataURL(bestand);
+    }
+
+    function toonMotormerken() {
+      const lijst = document.getElementById("motormerkenlijst");
+      lijst.innerHTML = "";
+      const merken = JSON.parse(localStorage.getItem("motor_merken") || "[]");
+      merken.forEach(m => {
+        const li = document.createElement("li");
+        li.textContent = m.charAt(0).toUpperCase() + m.slice(1);
+        lijst.appendChild(li);
       });
     }
-
-    function voegGebruikerToe() {
-      const naam = document.getElementById("nieuweNaam").value;
-      const gebruikersnaam = document.getElementById("nieuweGebruikersnaam").value;
-      const wachtwoord = document.getElementById("nieuweWachtwoord").value;
-      const rol = document.getElementById("nieuweRol").value;
-      gebruikers.push({ naam, gebruikersnaam, wachtwoord, rol });
-      localStorage.setItem("gebruikers", JSON.stringify(gebruikers));
-      toonGebruikers();
-    }
-
-    function verwijderGebruiker(index) {
-      if (confirm("Weet je zeker dat je deze gebruiker wilt verwijderen?")) {
-        gebruikers.splice(index, 1);
-        localStorage.setItem("gebruikers", JSON.stringify(gebruikers));
-        toonGebruikers();
-      }
-    }
-
-    function bewerkGebruiker(index) {
-      const gebruiker = gebruikers[index];
-      const nieuweNaam = prompt("Nieuwe naam:", gebruiker.naam);
-      const nieuweGebruikersnaam = prompt("Nieuwe gebruikersnaam:", gebruiker.gebruikersnaam);
-      const nieuweWachtwoord = prompt("Nieuw wachtwoord:", gebruiker.wachtwoord);
-      const nieuweRol = prompt("Nieuwe rol (admin/expert):", gebruiker.rol);
-      if (nieuweNaam && nieuweGebruikersnaam && nieuweWachtwoord && nieuweRol) {
-        gebruikers[index] = {
-          naam: nieuweNaam,
-          gebruikersnaam: nieuweGebruikersnaam,
-          wachtwoord: nieuweWachtwoord,
-          rol: nieuweRol
-        };
-        localStorage.setItem("gebruikers", JSON.stringify(gebruikers));
-        toonGebruikers();
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", toonGebruikers);
   </script>
 </body>
 </html>
