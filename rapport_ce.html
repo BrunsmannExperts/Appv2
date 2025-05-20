@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Rapport – CE-certificering</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/config.js"></script>
+  <script src="/js/app.js"></script>
+  <style>
+    textarea, select, input[type="text"] {
+      width: 100%;
+      margin-bottom: 1em;
+    }
+    .infolabel {
+      font-weight: bold;
+      margin-top: 1em;
+    }
+    .suggestieknop {
+      margin-bottom: 1em;
+    }
+    .preview {
+      max-width: 300px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>CE-certificering</h1>
+  <p>De CE-markering is verplicht voor pleziervaartuigen die na 1998 in de handel zijn gebracht binnen de Europese Economische Ruimte. Deze markering geeft aan dat het schip voldoet aan de essentiële eisen inzake veiligheid, gezondheid en milieu.</p>
+
+  <label class="infolabel">Is CE-markering aanwezig?</label>
+  <select id="ce_aanwezig">
+    <option value="">-- Kies --</option>
+    <option>Ja</option>
+    <option>Nee</option>
+    <option>Niet van toepassing</option>
+  </select>
+
+  <label class="infolabel">CE-categorie (A t/m D):</label>
+  <select id="ce_categorie">
+    <option value="">-- Kies --</option>
+    <option>A – Oceaan</option>
+    <option>B – Offshore</option>
+    <option>C – Kustwateren</option>
+    <option>D – Beschut water</option>
+  </select>
+
+  <label class="infolabel">Opmerkingen:</label>
+  <textarea id="ce_opmerkingen" rows="4" placeholder="Bijv. geen plaatje gevonden, vermoedelijk categorie C."></textarea>
+  <button class="suggestieknop" onclick="vraagSuggestie()">💡 AI-suggestie</button>
+
+  <label class="infolabel">Foto van CE-plaatje:</label>
+  <input type="file" accept="image/*" onchange="toonCEPreview(event)">
+  <img id="ce_foto_preview" class="preview" src="">
+
+  <script>
+    function vraagSuggestie() {
+      if (!OPENAI_API_KEY) return alert("Geen API-sleutel ingevuld.");
+      const prompt = "Je bent een scheepsinspecteur. Geef een voorbeeldtekst voor opmerkingen bij het CE-hoofdstuk van een motorboot die geen CE-plaatje heeft.";
+      fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + OPENAI_API_KEY
+        },
+        body: JSON.stringify({
+          model: "gpt-4",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 150
+        })
+      }).then(r => r.json()).then(data => {
+        document.getElementById("ce_opmerkingen").value = data.choices[0].message.content.trim();
+      });
+    }
+
+    function toonCEPreview(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        document.getElementById("ce_foto_preview").src = event.target.result;
+        localStorage.setItem("ce_foto", event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>
