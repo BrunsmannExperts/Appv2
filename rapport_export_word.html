@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Rapport exporteren</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <h1>Exporteer Rapport</h1>
+  <button onclick="exporteerNaarWord()">📄 Download als Word-bestand</button>
+  <div id="rapportInhoud" style="margin-top: 2em;"></div>
+
+  <script>
+    function laadRapport() {
+      const data = JSON.parse(localStorage.getItem("rapport_ingevuld"));
+      const container = document.getElementById("rapportInhoud");
+      if (!data) {
+        container.innerHTML = "<p>❌ Geen ingevuld rapport gevonden.</p>";
+        return;
+      }
+
+      for (const [key, value] of Object.entries(data)) {
+        const h3 = document.createElement("h3");
+        h3.textContent = key;
+        const p = document.createElement("p");
+        p.textContent = value || "(leeg)";
+        container.appendChild(h3);
+        container.appendChild(p);
+      }
+    }
+
+    function exporteerNaarWord() {
+      const content = document.getElementById("rapportInhoud").innerHTML;
+      const blob = new Blob(['<html><head><meta charset="utf-8"><title>Rapport</title></head><body>' + content + '</body></html>'], {
+        type: "application/msword"
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "rapport.doc";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.addEventListener("DOMContentLoaded", laadRapport);
+  </script>
+</body>
+</html>
