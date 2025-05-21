@@ -1,0 +1,220 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Instellingen – Brunsmann Experts</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background: #eef2f5;
+      color: #222;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 220px;
+      background: #003366;
+      color: white;
+      padding: 1.5em;
+      box-sizing: border-box;
+    }
+    .sidebar h2 {
+      font-size: 1.2em;
+      margin-bottom: 1em;
+    }
+    .sidebar button {
+      width: 100%;
+      background: none;
+      color: white;
+      border: none;
+      padding: 0.8em 0;
+      text-align: left;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    .sidebar button:hover {
+      background-color: #005199;
+    }
+    .main {
+      flex-grow: 1;
+      padding: 2em;
+      overflow-y: auto;
+      background: #f7f9fc;
+    }
+    .card {
+      background: white;
+      padding: 2em;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    input, button {
+      padding: 0.6em;
+      margin: 0.5em 0;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+    }
+    button.knop {
+      background-color: #003366;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      margin-top: 1em;
+    }
+    button.knop:hover {
+      background-color: #005199;
+    }
+    .user-card {
+      background: #f2f6fa;
+      padding: 1em;
+      border-radius: 6px;
+      margin-bottom: 1em;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <h2>Instellingen</h2>
+      <button onclick="toon('gebruikers')">👥 Gebruikers</button>
+      <button onclick="toon('mail')">✉️ Mailkoppeling</button>
+      <button onclick="toon('rapport')">📋 Rapportsjablonen</button>
+      <button onclick="toon('opmaak')">🎨 Opmaak app</button>
+      <button onclick="toon('motor')">⚙️ Motorgegevens</button>
+      <button onclick="toon('opslag')">📂 Opslagkoppeling</button>
+      <button onclick="window.location.href='dashboard.html'">⬅️ Terug naar dashboard</button>
+    </div>
+    <div class="main">
+      <div class="card" id="gebruikers" style="display:block;">
+        <h2>👥 Gebruikersbeheer</h2>
+        <div id="gebruikerslijst"></div>
+        <h3>Nieuwe gebruiker toevoegen</h3>
+        <input type="text" id="nieuwe_gebruiker" placeholder="Gebruikersnaam">
+        <input type="password" id="nieuw_wachtwoord1" placeholder="Wachtwoord">
+        <input type="password" id="nieuw_wachtwoord2" placeholder="Herhaal wachtwoord">
+        <input type="email" id="nieuwe_email" placeholder="E-mailadres">
+        <button class="knop" onclick="toevoegen()">Toevoegen</button>
+      </div>
+
+      <div class="card" id="mail" style="display:none;">
+        <h2>✉️ Mailinstellingen (SMTP)</h2>
+        <input type="text" id="smtp_server" placeholder="SMTP-server">
+        <input type="text" id="smtp_port" placeholder="Poort">
+        <input type="text" id="smtp_user" placeholder="Gebruikersnaam (e-mailadres)">
+        <input type="password" id="smtp_pass" placeholder="Wachtwoord">
+        <input type="text" id="smtp_fromname" placeholder="Afzendernaam">
+        <input type="text" id="smtp_fromemail" placeholder="Afzender e-mailadres">
+        <button class="knop" onclick="opslaanSMTP()">Opslaan</button>
+      </div>
+
+      <div class="card" id="rapport" style="display:none;">
+        <h2>📋 Rapportsjablonen</h2>
+        <p>Later komt hier een uploadfunctie voor Excel-sjablonen.</p>
+      </div>
+
+      <div class="card" id="opmaak" style="display:none;">
+        <h2>🎨 Opmaak & Thema</h2>
+        <label>Kleuraccent:</label>
+        <select id="accentkleur">
+          <option value="#003366">Donkerblauw (standaard)</option>
+          <option value="#006633">Groen</option>
+          <option value="#990000">Rood</option>
+        </select>
+        <label>Lettertype:</label>
+        <select id="lettertype">
+          <option value="sans-serif">Sans-serif</option>
+          <option value="serif">Serif</option>
+          <option value="monospace">Monospace</option>
+        </select>
+        <button class="knop" onclick="opslaanOpmaak()">Opslaan opmaak</button>
+      </div>
+
+      <div class="card" id="motor" style="display:none;">
+        <h2>⚙️ Motorgegevens</h2>
+        <p>Hier komt later de motorenlijst met zoeken en toevoegen.</p>
+      </div>
+
+      <div class="card" id="opslag" style="display:none;">
+        <h2>📂 Opslagkoppeling</h2>
+        <p>Hier koppelen we straks externe opslaglocaties of synchronisaties.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toon(id) {
+      const sections = document.querySelectorAll(".card");
+      sections.forEach(s => s.style.display = "none");
+      document.getElementById(id).style.display = "block";
+    }
+
+    function toonGebruikers() {
+      const gebruikers = JSON.parse(localStorage.getItem("gebruikerslijst") || "[]");
+      const lijst = document.getElementById("gebruikerslijst");
+      lijst.innerHTML = "";
+      gebruikers.forEach((g, i) => {
+        const div = document.createElement("div");
+        div.className = "user-card";
+        div.innerHTML = `<strong>${g.gebruiker}</strong><br>Email: ${g.email || "–"}<br>
+          <button onclick="verwijder(${i})">❌ Verwijder</button>`;
+        lijst.appendChild(div);
+      });
+    }
+
+    function toevoegen() {
+      const naam = document.getElementById("nieuwe_gebruiker").value.trim();
+      const w1 = document.getElementById("nieuw_wachtwoord1").value;
+      const w2 = document.getElementById("nieuw_wachtwoord2").value;
+      const email = document.getElementById("nieuwe_email").value.trim();
+
+      if (!naam || !w1 || !w2 || !email) return alert("Vul alles in.");
+      if (w1 !== w2) return alert("Wachtwoorden komen niet overeen.");
+
+      const gebruikers = JSON.parse(localStorage.getItem("gebruikerslijst") || "[]");
+      gebruikers.push({ gebruiker: naam, wachtwoord: w1, email });
+      localStorage.setItem("gebruikerslijst", JSON.stringify(gebruikers));
+      toonGebruikers();
+      alert("Gebruiker opgeslagen.");
+    }
+
+    function verwijder(i) {
+      const gebruikers = JSON.parse(localStorage.getItem("gebruikerslijst") || "[]");
+      gebruikers.splice(i, 1);
+      localStorage.setItem("gebruikerslijst", JSON.stringify(gebruikers));
+      toonGebruikers();
+    }
+
+    function opslaanSMTP() {
+      const settings = {
+        server: document.getElementById("smtp_server").value,
+        port: document.getElementById("smtp_port").value,
+        user: document.getElementById("smtp_user").value,
+        pass: document.getElementById("smtp_pass").value,
+        fromname: document.getElementById("smtp_fromname").value,
+        fromemail: document.getElementById("smtp_fromemail").value
+      };
+      localStorage.setItem("smtp_config", JSON.stringify(settings));
+      alert("SMTP opgeslagen");
+    }
+
+    function opslaanOpmaak() {
+      localStorage.setItem("accentkleur", document.getElementById("accentkleur").value);
+      localStorage.setItem("lettertype", document.getElementById("lettertype").value);
+      alert("Opmaak opgeslagen!");
+    }
+
+    window.onload = toonGebruikers;
+  </script>
+</body>
+</html>
