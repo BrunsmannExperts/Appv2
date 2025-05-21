@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Rapport – Veiligheid</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/config.js"></script>
+  <script src="/js/app.js"></script>
+  <style>
+    textarea, select {
+      width: 100%;
+      margin-bottom: 1em;
+    }
+    .labelblok {
+      font-weight: bold;
+      margin-top: 1em;
+    }
+    .preview {
+      max-width: 300px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Veiligheidsvoorzieningen</h1>
+  <p>Inspectie van brandblussers, dodemansknop, reddingsmiddelen en andere veiligheidsvoorzieningen aan boord.</p>
+
+  <label class="labelblok">Aanwezigheid brandblusser(s):</label>
+  <select id="veiligheid_blusser">
+    <option value="">-- Kies --</option>
+    <option>Ja</option>
+    <option>Nee</option>
+    <option>Niet gecontroleerd</option>
+  </select>
+
+  <label class="labelblok">Staat overige veiligheidsmiddelen:</label>
+  <select id="veiligheid_middelen">
+    <option value="">-- Kies beoordeling --</option>
+    <option>Goed</option>
+    <option>Redelijk</option>
+    <option>Voldoende</option>
+    <option>Matig</option>
+    <option>Slecht</option>
+  </select>
+
+  <label class="labelblok">Opmerkingen / bijzonderheden:</label>
+  <textarea id="veiligheid_opmerkingen" rows="4" placeholder="Bijv. brandblusser aanwezig, reddingsboei verouderd."></textarea>
+  <button onclick="vraagVeiligheidSuggestie()">💡 AI-suggestie</button>
+
+  <label class="labelblok">Foto(‘s) veiligheidsmiddelen:</label>
+  <input type="file" accept="image/*" onchange="toonVeiligheidPreview(event)">
+  <img id="veiligheid_foto_preview" class="preview" src="">
+
+  <script>
+    function vraagVeiligheidSuggestie() {
+      if (!OPENAI_API_KEY) return alert("Geen API-sleutel ingevuld.");
+      const prompt = "Geef een rapporttekst over veiligheidsvoorzieningen aan boord: blusser aanwezig, rest voldoende.";
+      fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + OPENAI_API_KEY
+        },
+        body: JSON.stringify({
+          model: "gpt-4",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 150
+        })
+      }).then(r => r.json()).then(data => {
+        document.getElementById("veiligheid_opmerkingen").value = data.choices[0].message.content.trim();
+      });
+    }
+
+    function toonVeiligheidPreview(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        document.getElementById("veiligheid_foto_preview").src = event.target.result;
+        localStorage.setItem("veiligheid_foto", event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>
