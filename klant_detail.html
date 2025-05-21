@@ -3,100 +3,156 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Klantgegevens – Brunsmann Experts</title>
+  <title>Klant – Brunsmann Experts</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    body { font-family: sans-serif; padding: 2em; background: #f2f6fa; }
-    input, button { padding: 0.5em; margin: 0.5em; display: block; width: 300px; }
+    body { font-family: sans-serif; margin: 0; background: #eef2f5; color: #222; }
+    .container { display: flex; height: 100vh; }
+    .sidebar {
+      width: 220px;
+      background: #003366;
+      color: white;
+      padding: 1.5em;
+      box-sizing: border-box;
+    }
+    .sidebar h2 { font-size: 1.2em; margin-bottom: 1em; }
+    .sidebar a {
+      display: block;
+      width: 100%;
+      background: none;
+      color: white;
+      text-decoration: none;
+      padding: 0.6em 0;
+      font-size: 1em;
+    }
+    .sidebar a:hover { background-color: #005199; }
+    .main {
+      flex-grow: 1;
+      padding: 2em;
+      background: #f7f9fc;
+      overflow-y: auto;
+    }
+    .userlabel {
+      font-size: 0.9em;
+      color: #666;
+      margin-bottom: 1em;
+    }
+    input {
+      padding: 0.6em;
+      margin: 0.5em 0;
+      font-size: 1em;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .knop {
+      background-color: #003366;
+      color: white;
+      padding: 0.6em 1.2em;
+      border: none;
+      border-radius: 6px;
+      margin: 0.5em 0.5em 0.5em 0;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .knop:hover { background-color: #005199; }
+    .document-card {
+      background: white;
+      padding: 1em;
+      margin-bottom: 1em;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.05);
+    }
   </style>
 </head>
 <body>
-  <h1>Klantgegevens</h1>
-  <form id="klantForm">
-    <input type="text" id="klantnummer" placeholder="Klantnummer">
-    <input type="text" id="naam" placeholder="Naam">
-    <input type="text" id="email" placeholder="E-mailadres">
-    <input type="text" id="telefoon" placeholder="Telefoonnummer">
-    <input type="text" id="adres" placeholder="Adres">
-    <input type="text" id="postcode" placeholder="Postcode">
-    <input type="text" id="woonplaats" placeholder="Woonplaats">
-    <input type="text" id="land" placeholder="Land">
-    <button type="submit">💾 Opslaan</button>
-  </form>
+  <div class="container">
+    <div class="sidebar">
+      <h2>📋 Menu</h2>
+      <a href="dashboard.html">🏠 Dashboard</a>
+      <a href="klanten_overzicht.html">👥 Klanten</a>
+      <a href="instellingen.html">⚙️ Instellingen</a>
+      <a href="index.html">🚪 Uitloggen</a>
+    </div>
+    <div class="main">
+      <div class="userlabel">Ingelogd als: <span id="gebruikersnaam">...</span></div>
+      <h1>Klantgegevens</h1>
+      <div>
+        <input type="text" id="klantnummer" placeholder="Klantnummer" readonly>
+        <input type="text" id="naam" placeholder="Naam">
+        <input type="text" id="email" placeholder="E-mailadres">
+        <input type="text" id="telefoon" placeholder="Telefoonnummer">
+        <input type="text" id="adres" placeholder="Adres">
+        <input type="text" id="postcode" placeholder="Postcode">
+        <input type="text" id="woonplaats" placeholder="Woonplaats">
+        <input type="text" id="land" placeholder="Land">
+        <button class="knop" onclick="opslaan()">💾 Opslaan</button>
+      </div>
 
-  <div id="extraActies" style="display:none;">
-    <h2>Acties</h2>
-    <button onclick="nieuwDocument('rapport')">📋 Nieuw rapport</button>
-    <button onclick="nieuwDocument('offerte')">📄 Nieuwe offerte</button>
-    <button onclick="nieuwDocument('factuur')">🧾 Nieuwe factuur</button>
-    <h3>📁 Documenten</h3>
-    <ul id="documentenlijst"></ul>
+      <h2>📁 Documenten</h2>
+      <div id="documentenlijst"></div>
+
+      <h2>➕ Nieuwe documenten</h2>
+      <button class="knop" onclick="nieuw('aankoopkeuring')">📋 Aankoopkeuring</button>
+      <button class="knop" onclick="nieuw('taxatie')">📐 Taxatie</button>
+      <button class="knop" onclick="nieuw('ce')">🏷️ CE</button>
+      <button class="knop" onclick="nieuw('offerte')">📄 Offerte</button>
+      <button class="knop" onclick="nieuw('factuur')">🧾 Factuur</button>
+    </div>
   </div>
 
-  <button onclick="window.location.href='klanten_overzicht.html'">🔙 Terug naar klantenlijst</button>
-
   <script>
-    const klantnummerInput = document.getElementById("klantnummer");
-    const actieveKlant = localStorage.getItem("actieve_klant");
+    document.getElementById("gebruikersnaam").textContent = localStorage.getItem("gebruiker") || "gebruiker";
+
+    const klantnummer = localStorage.getItem("actieve_klant");
     const klanten = JSON.parse(localStorage.getItem("klanten") || "[]");
+    let klant = klanten.find(k => k.klantnummer == klantnummer);
 
-    if (!actieveKlant) {
-      const hoogste = klanten.reduce((max, k) => Math.max(max, k.klantnummer || 0), 0);
-      klantnummerInput.value = hoogste + 1;
+    if (klant) {
+      document.getElementById("klantnummer").value = klant.klantnummer;
+      document.getElementById("naam").value = klant.naam || "";
+      document.getElementById("email").value = klant.email || "";
+      document.getElementById("telefoon").value = klant.telefoon || "";
+      document.getElementById("adres").value = klant.adres || "";
+      document.getElementById("postcode").value = klant.postcode || "";
+      document.getElementById("woonplaats").value = klant.woonplaats || "";
+      document.getElementById("land").value = klant.land || "";
+      toonDocumenten();
     }
 
-    if (actieveKlant) {
-      const klant = klanten.find(k => k.klantnummer == actieveKlant);
-      if (klant) {
-        klantnummerInput.value = klant.klantnummer;
-        document.getElementById("naam").value = klant.naam || "";
-        document.getElementById("email").value = klant.email || "";
-        document.getElementById("telefoon").value = klant.telefoon || "";
-        document.getElementById("adres").value = klant.adres || "";
-        document.getElementById("postcode").value = klant.postcode || "";
-        document.getElementById("woonplaats").value = klant.woonplaats || "";
-        document.getElementById("land").value = klant.land || "";
-        document.getElementById("extraActies").style.display = "block";
-        toonDocumenten(klant);
-      }
-    }
+    function opslaan() {
+      klant.naam = document.getElementById("naam").value;
+      klant.email = document.getElementById("email").value;
+      klant.telefoon = document.getElementById("telefoon").value;
+      klant.adres = document.getElementById("adres").value;
+      klant.postcode = document.getElementById("postcode").value;
+      klant.woonplaats = document.getElementById("woonplaats").value;
+      klant.land = document.getElementById("land").value;
 
-    document.getElementById("klantForm").onsubmit = function(e) {
-      e.preventDefault();
-      const nieuw = {
-        klantnummer: parseInt(klantnummerInput.value),
-        naam: document.getElementById("naam").value,
-        email: document.getElementById("email").value,
-        telefoon: document.getElementById("telefoon").value,
-        adres: document.getElementById("adres").value,
-        postcode: document.getElementById("postcode").value,
-        woonplaats: document.getElementById("woonplaats").value,
-        land: document.getElementById("land").value,
-        documenten: []
-      };
-
-      const bestaande = klanten.findIndex(k => k.klantnummer == nieuw.klantnummer);
-      if (bestaande >= 0) klanten[bestaande] = nieuw;
-      else klanten.push(nieuw);
-
+      const index = klanten.findIndex(k => k.klantnummer == klant.klantnummer);
+      if (index >= 0) klanten[index] = klant;
       localStorage.setItem("klanten", JSON.stringify(klanten));
-      alert("Klant opgeslagen!");
-      localStorage.setItem("actieve_klant", nieuw.klantnummer);
-      document.getElementById("extraActies").style.display = "block";
+      alert("Gegevens opgeslagen!");
     }
 
-    function nieuwDocument(type) {
-      alert(`Nieuw ${type} aangemaakt voor klant ${klantnummerInput.value}`);
-    }
-
-    function toonDocumenten(klant) {
+    function toonDocumenten() {
       const lijst = document.getElementById("documentenlijst");
       lijst.innerHTML = "";
       (klant.documenten || []).forEach(d => {
-        const li = document.createElement("li");
-        li.textContent = `${d.naam} (${d.type})`;
-        lijst.appendChild(li);
+        const div = document.createElement("div");
+        div.className = "document-card";
+        div.textContent = `${d.type.toUpperCase()} – ${d.naam || '(zonder naam)'}`;
+        lijst.appendChild(div);
       });
+    }
+
+    function nieuw(type) {
+      const doc = { type, naam: `Nieuw ${type}`, datum: new Date().toISOString() };
+      klant.documenten = klant.documenten || [];
+      klant.documenten.push(doc);
+      localStorage.setItem("klanten", JSON.stringify(klanten));
+      toonDocumenten();
     }
   </script>
 </body>
