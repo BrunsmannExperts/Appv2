@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Documentatie – Brunsmann Experts</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2em;
+      background: #eef2f5;
+      color: #222;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      padding: 2em;
+      margin-bottom: 2em;
+    }
+    h1, h2 {
+      color: #003366;
+    }
+    .knop {
+      background-color: #003366;
+      color: white;
+      padding: 0.7em 1.5em;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 1em;
+    }
+    .knop:hover {
+      background-color: #005199;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📘 Documentatie – Brunsmann Experts App</h1>
+
+    <div class="card">
+      <h2>🧱 Werkwijze & Structuur</h2>
+      <p><strong>Modulair bouwen met ChatGPT:</strong> elke functie, pagina of rapportonderdeel wordt apart gemaakt. Je ontvangt complete HTML-bestanden die direct werken.</p>
+      <p><strong>Bestandslevering:</strong> bestanden worden via downloadlink aangeboden en handmatig toegevoegd aan GitHub.</p>
+    </div>
+
+    <div class="card">
+      <h2>📁 Bestandenbeheer via GitHub</h2>
+      <p>Alle bestanden staan in een GitHub-repository. Jij beheert commits, versies en structuur zelf. Je uploadt bestanden rechtstreeks in de juiste map (vaak op rootniveau).</p>
+    </div>
+
+    <div class="card">
+      <h2>🌍 Hosting met Netlify</h2>
+      <p>De GitHub-repository is gekoppeld aan Netlify. Elke commit = automatische live update. Zo kunnen jij en je vader testen zonder lokaal gedoe.</p>
+    </div>
+
+    <div class="card">
+      <h2>🧪 Teststructuur</h2>
+      <p>We bouwen de app in logische stappen: inloggen → klant aanmaken → rapport starten → exporteren. Altijd testbaar, nooit half werkend.</p>
+    </div>
+
+    <div class="card">
+      <h2>🎨 Uniforme opmaak</h2>
+      <p>Alle pagina’s gebruiken dezelfde stijl: cards, knoppen, lettertype en achtergrond. Style staat in <code>style.css</code>.</p>
+      <p>Extra instellingen voor kleur & lettertype via <code>opmaak_thema.html</code>, opgeslagen in localStorage.</p>
+    </div>
+
+    <div class="card">
+      <h2>🧠 ChatGPT als geheugen</h2>
+      <p>Alle keuzes (bijv. klantnummerlogica, structuur, stijlregels) zijn opgeslagen in het geheugen van dit project. Jij kunt vragen om door te bouwen "zoals wij dat doen", en krijgt automatisch de juiste structuur terug.</p>
+    </div>
+
+    <button class="knop" onclick="window.location.href='dashboard.html'">🏠 Terug naar dashboard</button>
+  </div>
+</body>
+</html>
