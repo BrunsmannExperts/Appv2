@@ -17,6 +17,10 @@
     <input type="text" id="naam" placeholder="Naam">
     <input type="text" id="email" placeholder="E-mailadres">
     <input type="text" id="telefoon" placeholder="Telefoonnummer">
+    <input type="text" id="adres" placeholder="Adres">
+    <input type="text" id="postcode" placeholder="Postcode">
+    <input type="text" id="woonplaats" placeholder="Woonplaats">
+    <input type="text" id="land" placeholder="Land">
     <button type="submit">💾 Opslaan</button>
   </form>
 
@@ -37,7 +41,6 @@
     const klanten = JSON.parse(localStorage.getItem("klanten") || "[]");
 
     if (!actieveKlant) {
-      // Nieuw klantnummer automatisch genereren
       const hoogste = klanten.reduce((max, k) => Math.max(max, k.klantnummer || 0), 0);
       klantnummerInput.value = hoogste + 1;
     }
@@ -49,6 +52,10 @@
         document.getElementById("naam").value = klant.naam || "";
         document.getElementById("email").value = klant.email || "";
         document.getElementById("telefoon").value = klant.telefoon || "";
+        document.getElementById("adres").value = klant.adres || "";
+        document.getElementById("postcode").value = klant.postcode || "";
+        document.getElementById("woonplaats").value = klant.woonplaats || "";
+        document.getElementById("land").value = klant.land || "";
         document.getElementById("extraActies").style.display = "block";
         toonDocumenten(klant);
       }
@@ -61,6 +68,10 @@
         naam: document.getElementById("naam").value,
         email: document.getElementById("email").value,
         telefoon: document.getElementById("telefoon").value,
+        adres: document.getElementById("adres").value,
+        postcode: document.getElementById("postcode").value,
+        woonplaats: document.getElementById("woonplaats").value,
+        land: document.getElementById("land").value,
         documenten: []
       };
 
@@ -76,7 +87,6 @@
 
     function nieuwDocument(type) {
       alert(`Nieuw ${type} aangemaakt voor klant ${klantnummerInput.value}`);
-      // Hier zou je eventueel een doorverwijzing naar rapport/offerte/factuurpagina maken
     }
 
     function toonDocumenten(klant) {
