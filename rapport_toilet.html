@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Rapport – Toilet & Watertanks</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/config.js"></script>
+  <script src="/js/app.js"></script>
+  <style>
+    textarea, select {
+      width: 100%;
+      margin-bottom: 1em;
+    }
+    .labelblok {
+      font-weight: bold;
+      margin-top: 1em;
+    }
+    .preview {
+      max-width: 300px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Toilet & Watertanks</h1>
+  <p>Inspectie van toiletinstallatie en zoetwatervoorziening, inclusief pomptoilet, afvoerslangen, vuilwatertank, schoonwatertank en kranen.</p>
+
+  <label class="labelblok">Aanwezigheid toilet:</label>
+  <select id="toilet_aanwezig">
+    <option value="">-- Kies --</option>
+    <option>Ja</option>
+    <option>Nee</option>
+    <option>Niet gecontroleerd</option>
+  </select>
+
+  <label class="labelblok">Staat toiletinstallatie:</label>
+  <select id="toilet_staat">
+    <option value="">-- Kies beoordeling --</option>
+    <option>Goed</option>
+    <option>Redelijk</option>
+    <option>Voldoende</option>
+    <option>Matig</option>
+    <option>Slecht</option>
+  </select>
+
+  <label class="labelblok">Opmerkingen / bijzonderheden:</label>
+  <textarea id="toilet_opmerkingen" rows="4" placeholder="Bijv. pomptoilet in werkende staat, vuilwatertank onbekend."></textarea>
+  <button onclick="vraagToiletsuggestie()">💡 AI-suggestie</button>
+
+  <label class="labelblok">Foto(‘s) toiletinstallatie:</label>
+  <input type="file" accept="image/*" onchange="toonToiletPreview(event)">
+  <img id="toilet_foto_preview" class="preview" src="">
+
+  <script>
+    function vraagToiletsuggestie() {
+      if (!OPENAI_API_KEY) return alert("Geen API-sleutel ingevuld.");
+      const prompt = "Schrijf een rapporttekst over toiletinstallatie met pomptoilet in werkende staat, vuilwatertank onbekend.";
+      fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + OPENAI_API_KEY
+        },
+        body: JSON.stringify({
+          model: "gpt-4",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 150
+        })
+      }).then(r => r.json()).then(data => {
+        document.getElementById("toilet_opmerkingen").value = data.choices[0].message.content.trim();
+      });
+    }
+
+    function toonToiletPreview(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        document.getElementById("toilet_foto_preview").src = event.target.result;
+        localStorage.setItem("toilet_foto", event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>
