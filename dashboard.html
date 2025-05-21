@@ -6,28 +6,86 @@
   <title>Dashboard – Brunsmann Experts</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    body { font-family: sans-serif; padding: 2em; background: #f2f6fa; }
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background: #eef2f5;
+      color: #222;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 220px;
+      background: #003366;
+      color: white;
+      padding: 1.5em;
+      box-sizing: border-box;
+    }
+    .sidebar h2 {
+      font-size: 1.2em;
+      margin-bottom: 1em;
+    }
+    .sidebar button, .sidebar a {
+      display: block;
+      width: 100%;
+      background: none;
+      color: white;
+      border: none;
+      padding: 0.6em 0;
+      text-align: left;
+      font-size: 1em;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .sidebar button:hover, .sidebar a:hover {
+      background-color: #005199;
+    }
+    .main {
+      flex-grow: 1;
+      padding: 2em;
+      background: #f7f9fc;
+    }
+    .userlabel {
+      font-size: 0.9em;
+      color: #666;
+      margin-bottom: 2em;
+    }
     .knop {
       display: inline-block;
-      margin: 1em 1em 0 0;
-      padding: 1em 2em;
+      margin: 0.5em 1em 0.5em 0;
+      padding: 0.6em 1.2em;
       background-color: #003366;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       text-decoration: none;
-      font-size: 1.1em;
+      font-size: 1em;
     }
-    .knop:hover { background-color: #005199; }
+    .knop:hover {
+      background-color: #005199;
+    }
   </style>
 </head>
 <body>
-  <h1>Welkom, <span id="gebruikersnaam"></span></h1>
-  <p>Kies wat je wilt doen:</p>
-
-  <a class="knop" href="klanten_overzicht.html">👥 Klanten</a>
-  <a class="knop" href="instellingen.html">⚙️ Instellingen</a>
-  <a class="knop" href="index.html">🚪 Uitloggen</a>
+  <div class="container">
+    <div class="sidebar">
+      <h2>📋 Dashboard</h2>
+      <a href="klanten_overzicht.html">👥 Klanten</a>
+      <a href="instellingen.html">⚙️ Instellingen</a>
+      <a href="documentatie.html">📘 Documentatie</a>
+      <a href="index.html">🚪 Uitloggen</a>
+    </div>
+    <div class="main">
+      <div class="userlabel">Ingelogd als: <span id="gebruikersnaam">gebruiker</span></div>
+      <h1>Welkom bij Brunsmann Experts</h1>
+      <p>Kies hieronder wat je wilt doen:</p>
+      <a class="knop" href="klanten_overzicht.html">➕ Nieuwe klant</a>
+      <a class="knop" href="rapport_start.html">📝 Nieuw rapport</a>
+      <a class="knop" href="rapport_export_word.html">⬇️ Export rapport</a>
+    </div>
+  </div>
 
   <script>
     document.getElementById("gebruikersnaam").textContent = localStorage.getItem("gebruiker") || "gebruiker";
