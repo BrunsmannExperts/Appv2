@@ -1,70 +1,86 @@
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Instellingen – Opmaak & Thema</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <script src="/js/config.js"></script>
-  <script src="/js/app.js"></script>
+  <title>Opmaak & Thema – Brunsmann Experts</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2em;
+      background: #eef2f5;
+      color: #222;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      padding: 2em;
+      margin-bottom: 2em;
+    }
+    h1, h2 {
+      color: #003366;
+    }
+    input, select, button {
+      padding: 0.75em;
+      margin: 0.5em 0;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .knop {
+      background-color: #003366;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .knop:hover {
+      background-color: #005199;
+    }
+  </style>
 </head>
 <body>
-  <h2>Opmaak & Thema</h2>
-  <p>Pas hier het uiterlijk van de app aan. Wijzigingen worden direct toegepast en opgeslagen.</p>
+  <div class="container">
+    <h1>🎨 Opmaak & Thema</h1>
 
-  <label>Kleur knoppen:
-    <input type="color" id="kleur" value="#007bff">
-  </label><br><br>
+    <div class="card">
+      <h2>📋 Basisinstellingen</h2>
+      <label>Kleuraccent:</label>
+      <select id="accentkleur">
+        <option value="#003366">Donkerblauw (standaard)</option>
+        <option value="#006633">Groen</option>
+        <option value="#990000">Rood</option>
+        <option value="#444">Grijs</option>
+      </select>
 
-  <label>Tekstkleur:
-    <input type="color" id="tekstkleur" value="#000000">
-  </label><br><br>
+      <label>Lettertype:</label>
+      <select id="lettertype">
+        <option value="sans-serif">Standaard (sans-serif)</option>
+        <option value="serif">Serif</option>
+        <option value="monospace">Monospace</option>
+      </select>
 
-  <label>Achtergrondkleur:
-    <input type="color" id="achtergrond" value="#ffffff">
-  </label><br><br>
+      <button class="knop" onclick="opslaan()">💾 Opslaan</button>
+    </div>
 
-  <label>Lettergrootte:
-    <select id="lettergrootte">
-      <option value="14px">Klein</option>
-      <option value="16px" selected>Normaal</option>
-      <option value="18px">Groot</option>
-    </select>
-  </label><br><br>
-
-  <label>Knopvorm:
-    <select id="randen">
-      <option value="0px">Hoekig</option>
-      <option value="6px" selected>Afgerond</option>
-      <option value="12px">Extra rond</option>
-    </select>
-  </label><br><br>
-
-  <button onclick="opslaanThema()">Opslaan</button>
+    <button class="knop" onclick="window.location.href='dashboard.html'">🏠 Terug naar dashboard</button>
+  </div>
 
   <script>
-    function opslaanThema() {
-      const theme = {
-        primaryColor: document.getElementById("kleur").value,
-        textColor: document.getElementById("tekstkleur").value,
-        backgroundColor: document.getElementById("achtergrond").value,
-        fontSize: document.getElementById("lettergrootte").value,
-        borderRadius: document.getElementById("randen").value,
-      };
-      localStorage.setItem("theme", JSON.stringify(theme));
-      location.reload();
+    function opslaan() {
+      const kleur = document.getElementById("accentkleur").value;
+      const font = document.getElementById("lettertype").value;
+      localStorage.setItem("accentkleur", kleur);
+      localStorage.setItem("lettertype", font);
+      alert("Opmaak opgeslagen!");
     }
-
-    function laadThema() {
-      const theme = JSON.parse(localStorage.getItem("theme"));
-      if (!theme) return;
-      document.getElementById("kleur").value = theme.primaryColor;
-      document.getElementById("tekstkleur").value = theme.textColor;
-      document.getElementById("achtergrond").value = theme.backgroundColor;
-      document.getElementById("lettergrootte").value = theme.fontSize;
-      document.getElementById("randen").value = theme.borderRadius;
-    }
-
-    document.addEventListener("DOMContentLoaded", laadThema);
   </script>
 </body>
 </html>
