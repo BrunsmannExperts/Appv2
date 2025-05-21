@@ -3,25 +3,105 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Klantenoverzicht – Brunsmann Experts</title>
+  <title>Klanten – Brunsmann Experts</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    body { font-family: sans-serif; padding: 2em; background: #f2f6fa; }
-    input, button { padding: 0.5em; margin: 0.5em; }
-    .klantkaart { border: 1px solid #ccc; border-radius: 8px; padding: 1em; margin-bottom: 1em; background: white; }
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background: #eef2f5;
+      color: #222;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 220px;
+      background: #003366;
+      color: white;
+      padding: 1.5em;
+      box-sizing: border-box;
+    }
+    .sidebar h2 {
+      font-size: 1.2em;
+      margin-bottom: 1em;
+    }
+    .sidebar a {
+      display: block;
+      width: 100%;
+      background: none;
+      color: white;
+      text-decoration: none;
+      padding: 0.6em 0;
+      font-size: 1em;
+    }
+    .sidebar a:hover {
+      background-color: #005199;
+    }
+    .main {
+      flex-grow: 1;
+      padding: 2em;
+      overflow-y: auto;
+    }
+    .userlabel {
+      font-size: 0.9em;
+      color: #666;
+      margin-bottom: 1em;
+    }
+    input, button {
+      padding: 0.6em;
+      margin: 0.5em 0.5em 0.5em 0;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .klantkaart {
+      background: white;
+      border-radius: 8px;
+      padding: 1em;
+      margin-bottom: 1em;
+      box-shadow: 0 0 5px rgba(0,0,0,0.05);
+    }
+    .knop {
+      background-color: #003366;
+      color: white;
+      padding: 0.6em 1.2em;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 1em;
+    }
+    .knop:hover {
+      background-color: #005199;
+    }
   </style>
 </head>
 <body>
-  <h1>Klantenoverzicht</h1>
-  <input type="text" id="zoeknaam" placeholder="Zoek op naam">
-  <input type="text" id="zoeknummer" placeholder="Zoek op klantnummer">
-  <button onclick="toonKlanten()">🔍 Filter</button>
-  <button onclick="window.location.href='klant_detail.html'">➕ Nieuwe klant</button>
-  <div id="klantenlijst"></div>
-
-  <button onclick="window.location.href='dashboard.html'">🏠 Terug naar dashboard</button>
+  <div class="container">
+    <div class="sidebar">
+      <h2>📋 Dashboard</h2>
+      <a href="dashboard.html">🏠 Dashboard</a>
+      <a href="instellingen.html">⚙️ Instellingen</a>
+      <a href="documentatie.html">📘 Documentatie</a>
+      <a href="index.html">🚪 Uitloggen</a>
+    </div>
+    <div class="main">
+      <div class="userlabel">Ingelogd als: <span id="gebruikersnaam"></span></div>
+      <h1>Klantenoverzicht</h1>
+      <input type="text" id="zoeknaam" placeholder="Zoek op naam">
+      <input type="text" id="zoeknummer" placeholder="Zoek op klantnummer">
+      <button onclick="toonKlanten()">🔍 Filter</button>
+      <button onclick="window.location.href='klant_detail.html'" class="knop">➕ Nieuwe klant</button>
+      <div id="klantenlijst" style="margin-top:2em;"></div>
+    </div>
+  </div>
 
   <script>
+    document.getElementById("gebruikersnaam").textContent = localStorage.getItem("gebruiker") || "gebruiker";
+
     function toonKlanten() {
       const zoeknaam = document.getElementById("zoeknaam").value.toLowerCase();
       const zoeknummer = document.getElementById("zoeknummer").value;
@@ -36,7 +116,7 @@
         const div = document.createElement("div");
         div.className = "klantkaart";
         div.innerHTML = `<strong>${k.naam}</strong><br>Klantnummer: ${k.klantnummer}<br>
-                         <button onclick="openKlant(${k.klantnummer})">📂 Open</button>`;
+                         <button class="knop" onclick="openKlant(${k.klantnummer})">📂 Open</button>`;
         container.appendChild(div);
       });
     }
