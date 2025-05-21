@@ -94,7 +94,6 @@
       <input type="text" id="zoeknaam" placeholder="Zoek op naam">
       <input type="text" id="zoeknummer" placeholder="Zoek op klantnummer">
       <button onclick="toonKlanten()">🔍 Filter</button>
-      <button onclick="window.location.href='klant_detail.html'" class="knop">➕ Nieuwe klant</button>
       <div id="klantenlijst" style="margin-top:2em;"></div>
     </div>
   </div>
@@ -109,16 +108,19 @@
       const container = document.getElementById("klantenlijst");
       container.innerHTML = "";
 
-      klanten.filter(k => 
-        (!zoeknaam || k.naam.toLowerCase().includes(zoeknaam)) &&
-        (!zoeknummer || k.klantnummer.toString().includes(zoeknummer))
-      ).forEach(k => {
-        const div = document.createElement("div");
-        div.className = "klantkaart";
-        div.innerHTML = `<strong>${k.naam}</strong><br>Klantnummer: ${k.klantnummer}<br>
-                         <button class="knop" onclick="openKlant(${k.klantnummer})">📂 Open</button>`;
-        container.appendChild(div);
-      });
+      klanten
+        .filter(k =>
+          (!zoeknaam || k.naam.toLowerCase().includes(zoeknaam)) &&
+          (!zoeknummer || k.klantnummer.toString().includes(zoeknummer))
+        )
+        .sort((a, b) => b.klantnummer - a.klantnummer)
+        .forEach(k => {
+          const div = document.createElement("div");
+          div.className = "klantkaart";
+          div.innerHTML = `<strong>${k.naam}</strong><br>Klantnummer: ${k.klantnummer}<br>
+                           <button class="knop" onclick="openKlant(${k.klantnummer})">📂 Open</button>`;
+          container.appendChild(div);
+        });
     }
 
     function openKlant(klantnummer) {
