@@ -1,49 +1,85 @@
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Rapport starten</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <script src="/js/config.js"></script>
-  <script src="/js/app.js"></script>
+  <title>Rapport starten – Brunsmann Experts</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: sans-serif; padding: 2em; background: #f2f6fa; }
+    input, select, button { padding: 0.5em; margin: 0.5em; display: block; width: 300px; }
+    h2 { margin-top: 2em; }
+  </style>
 </head>
 <body>
-  <h1>Nieuw Rapport</h1>
-  <div id="rapportContainer"></div>
+  <h1>📋 Rapport starten</h1>
+
+  <h2>🔹 Klantgegevens</h2>
+  <input type="text" id="klant_naam" placeholder="Naam klant">
+  <input type="text" id="klant_nummer" placeholder="Klantnummer" readonly>
+  <input type="text" id="klant_email" placeholder="E-mailadres">
+  <input type="text" id="klant_telefoon" placeholder="Telefoonnummer">
+  <input type="text" id="klant_adres" placeholder="Adres">
+  <input type="text" id="klant_postcode" placeholder="Postcode">
+  <input type="text" id="klant_woonplaats" placeholder="Woonplaats">
+  <input type="text" id="klant_land" placeholder="Land">
+
+  <h2>🔹 Bootgegevens</h2>
+  <input type="text" id="boot_naam" placeholder="Bootnaam">
+  <input type="text" id="boot_type" placeholder="Type / merk boot">
+  <input type="text" id="boot_lengte" placeholder="Lengte (m)">
+
+  <h2>🔹 Inspectiegegevens</h2>
+  <input type="date" id="inspectiedatum" placeholder="Datum keuring">
+  <input type="text" id="expert_naam" placeholder="Naam expert">
+  <select id="keuringstype">
+    <option value="">-- Kies type keuring --</option>
+    <option value="aankoop">Aankoopkeuring</option>
+    <option value="taxatie">Taxatie</option>
+    <option value="tusseninspectie">Tusseninspectie</option>
+  </select>
+
+  <button onclick="opslaanEnVerder()">💾 Opslaan en doorgaan</button>
+  <button onclick="window.location.href='dashboard.html'">🏠 Terug naar dashboard</button>
 
   <script>
-    function laadRapportStructuur() {
-      const data = JSON.parse(localStorage.getItem("rapportstructuur"));
-      if (!data || data.length === 0) {
-        document.getElementById("rapportContainer").innerHTML = "<p>❌ Geen rapportstructuur gevonden. Upload een Excelbestand in instellingen.</p>";
-        return;
-      }
+    const klantnummer = localStorage.getItem("actieve_klant");
+    const klanten = JSON.parse(localStorage.getItem("klanten") || "[]");
+    const klant = klanten.find(k => k.klantnummer == klantnummer);
 
-      const container = document.getElementById("rapportContainer");
-      let huidigHoofdstuk = "";
-      data.forEach((item, index) => {
-        if (item.Hoofdstuk && item.Hoofdstuk !== huidigHoofdstuk) {
-          huidigHoofdstuk = item.Hoofdstuk;
-          const h2 = document.createElement("h2");
-          h2.textContent = huidigHoofdstuk;
-          container.appendChild(h2);
-        }
-
-        const veldLabel = document.createElement("label");
-        veldLabel.textContent = item.Veldnaam + (item.Verplicht === "ja" ? " *" : "");
-        veldLabel.htmlFor = `veld-${index}`;
-        container.appendChild(veldLabel);
-
-        const textarea = document.createElement("textarea");
-        textarea.id = `veld-${index}`;
-        textarea.rows = 3;
-        textarea.style.width = "100%";
-        textarea.placeholder = item.Toelichting || "";
-        container.appendChild(textarea);
-      });
+    if (klant) {
+      document.getElementById("klant_naam").value = klant.naam || "";
+      document.getElementById("klant_nummer").value = klant.klantnummer || "";
+      document.getElementById("klant_email").value = klant.email || "";
+      document.getElementById("klant_telefoon").value = klant.telefoon || "";
+      document.getElementById("klant_adres").value = klant.adres || "";
+      document.getElementById("klant_postcode").value = klant.postcode || "";
+      document.getElementById("klant_woonplaats").value = klant.woonplaats || "";
+      document.getElementById("klant_land").value = klant.land || "";
     }
 
-    document.addEventListener("DOMContentLoaded", laadRapportStructuur);
+    function opslaanEnVerder() {
+      const rapport = {
+        klantnummer: document.getElementById("klant_nummer").value,
+        klant_naam: document.getElementById("klant_naam").value,
+        klant_email: document.getElementById("klant_email").value,
+        klant_telefoon: document.getElementById("klant_telefoon").value,
+        klant_adres: document.getElementById("klant_adres").value,
+        klant_postcode: document.getElementById("klant_postcode").value,
+        klant_woonplaats: document.getElementById("klant_woonplaats").value,
+        klant_land: document.getElementById("klant_land").value,
+        boot_naam: document.getElementById("boot_naam").value,
+        boot_type: document.getElementById("boot_type").value,
+        boot_lengte: document.getElementById("boot_lengte").value,
+        inspectiedatum: document.getElementById("inspectiedatum").value,
+        expert_naam: document.getElementById("expert_naam").value,
+        keuringstype: document.getElementById("keuringstype").value
+      };
+
+      localStorage.setItem("actief_rapport", JSON.stringify(rapport));
+      alert("Rapport opgeslagen. Je gaat nu verder.");
+      window.location.href = "rapport_romp.html"; // eerste inhoudelijke pagina
+    }
   </script>
 </body>
 </html>
