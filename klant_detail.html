@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Klantgegevens – Brunsmann Experts</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: sans-serif; padding: 2em; background: #f2f6fa; }
+    input, button { padding: 0.5em; margin: 0.5em; display: block; width: 300px; }
+  </style>
+</head>
+<body>
+  <h1>Klantgegevens</h1>
+  <form id="klantForm">
+    <input type="text" id="klantnummer" placeholder="Klantnummer">
+    <input type="text" id="naam" placeholder="Naam">
+    <input type="text" id="email" placeholder="E-mailadres">
+    <input type="text" id="telefoon" placeholder="Telefoonnummer">
+    <button type="submit">💾 Opslaan</button>
+  </form>
+
+  <div id="extraActies" style="display:none;">
+    <h2>Acties</h2>
+    <button onclick="nieuwDocument('rapport')">📋 Nieuw rapport</button>
+    <button onclick="nieuwDocument('offerte')">📄 Nieuwe offerte</button>
+    <button onclick="nieuwDocument('factuur')">🧾 Nieuwe factuur</button>
+    <h3>📁 Documenten</h3>
+    <ul id="documentenlijst"></ul>
+  </div>
+
+  <button onclick="window.location.href='klanten_overzicht.html'">🔙 Terug naar klantenlijst</button>
+
+  <script>
+    const klantnummerInput = document.getElementById("klantnummer");
+    const actieveKlant = localStorage.getItem("actieve_klant");
+    const klanten = JSON.parse(localStorage.getItem("klanten") || "[]");
+
+    if (!actieveKlant) {
+      // Nieuw klantnummer automatisch genereren
+      const hoogste = klanten.reduce((max, k) => Math.max(max, k.klantnummer || 0), 0);
+      klantnummerInput.value = hoogste + 1;
+    }
+
+    if (actieveKlant) {
+      const klant = klanten.find(k => k.klantnummer == actieveKlant);
+      if (klant) {
+        klantnummerInput.value = klant.klantnummer;
+        document.getElementById("naam").value = klant.naam || "";
+        document.getElementById("email").value = klant.email || "";
+        document.getElementById("telefoon").value = klant.telefoon || "";
+        document.getElementById("extraActies").style.display = "block";
+        toonDocumenten(klant);
+      }
+    }
+
+    document.getElementById("klantForm").onsubmit = function(e) {
+      e.preventDefault();
+      const nieuw = {
+        klantnummer: parseInt(klantnummerInput.value),
+        naam: document.getElementById("naam").value,
+        email: document.getElementById("email").value,
+        telefoon: document.getElementById("telefoon").value,
+        documenten: []
+      };
+
+      const bestaande = klanten.findIndex(k => k.klantnummer == nieuw.klantnummer);
+      if (bestaande >= 0) klanten[bestaande] = nieuw;
+      else klanten.push(nieuw);
+
+      localStorage.setItem("klanten", JSON.stringify(klanten));
+      alert("Klant opgeslagen!");
+      localStorage.setItem("actieve_klant", nieuw.klantnummer);
+      document.getElementById("extraActies").style.display = "block";
+    }
+
+    function nieuwDocument(type) {
+      alert(`Nieuw ${type} aangemaakt voor klant ${klantnummerInput.value}`);
+      // Hier zou je eventueel een doorverwijzing naar rapport/offerte/factuurpagina maken
+    }
+
+    function toonDocumenten(klant) {
+      const lijst = document.getElementById("documentenlijst");
+      lijst.innerHTML = "";
+      (klant.documenten || []).forEach(d => {
+        const li = document.createElement("li");
+        li.textContent = `${d.naam} (${d.type})`;
+        lijst.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
