@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <title>Instellingen – Brunsmann Experts</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     body {
       font-family: sans-serif;
@@ -27,7 +28,8 @@
       font-size: 1.2em;
       margin-bottom: 1em;
     }
-    .sidebar button {
+    .sidebar button, .sidebar a {
+      display: block;
       width: 100%;
       background: none;
       color: white;
@@ -35,9 +37,10 @@
       padding: 0.8em 0;
       text-align: left;
       font-size: 1em;
+      text-decoration: none;
       cursor: pointer;
     }
-    .sidebar button:hover {
+    .sidebar button:hover, .sidebar a:hover {
       background-color: #005199;
     }
     .main {
@@ -54,13 +57,13 @@
       max-width: 900px;
       margin: 0 auto;
     }
-    input, button {
-      padding: 0.6em;
+    input, select, button {
+      padding: 0.75em;
       margin: 0.5em 0;
       width: 100%;
       max-width: 400px;
-      border: 1px solid #ccc;
       border-radius: 6px;
+      border: 1px solid #ccc;
       font-size: 1em;
     }
     button.knop {
@@ -69,7 +72,6 @@
       font-weight: bold;
       border: none;
       cursor: pointer;
-      margin-top: 1em;
     }
     button.knop:hover {
       background-color: #005199;
@@ -89,11 +91,11 @@
       <h2>Instellingen</h2>
       <button onclick="toon('gebruikers')">👥 Gebruikers</button>
       <button onclick="toon('mail')">✉️ Mailkoppeling</button>
-      <button onclick="toon('rapport')">📋 Rapportsjablonen</button>
+      <button onclick="toon('rapport')">📋 Rapportsjabloon</button>
       <button onclick="toon('opmaak')">🎨 Opmaak app</button>
       <button onclick="toon('motor')">⚙️ Motorgegevens</button>
       <button onclick="toon('opslag')">📂 Opslagkoppeling</button>
-      <button onclick="window.location.href='dashboard.html'">⬅️ Terug naar dashboard</button>
+      <a href="dashboard.html">⬅️ Terug naar dashboard</a>
     </div>
     <div class="main">
       <div class="card" id="gebruikers" style="display:block;">
@@ -119,8 +121,11 @@
       </div>
 
       <div class="card" id="rapport" style="display:none;">
-        <h2>📋 Rapportsjablonen</h2>
-        <p>Later komt hier een uploadfunctie voor Excel-sjablonen.</p>
+        <h2>📋 Rapportsjabloon uploaden</h2>
+        <p>Upload hier een Excel-sjabloon met rapportvelden:</p>
+        <input type="file" id="sjabloonUpload" accept=".xlsx,.xls">
+        <button class="knop" onclick="leesSjabloon()">📤 Upload</button>
+        <div id="uploadFeedback" style="margin-top:1em;"></div>
       </div>
 
       <div class="card" id="opmaak" style="display:none;">
@@ -140,15 +145,25 @@
         <button class="knop" onclick="opslaanOpmaak()">Opslaan opmaak</button>
       </div>
 
-      <div class="card" id="motor" style="display:none;">
-        <h2>⚙️ Motorgegevens</h2>
-        <p>Hier komt later de motorenlijst met zoeken en toevoegen.</p>
-      </div>
+      
+<div class="card" id="motor" style="display:none;">
+  <h2>⚙️ Motorgegevens uploaden</h2>
+  <p>Upload hier een Excelbestand met motorgegevens:</p>
+  <input type="file" id="motorUpload" accept=".xlsx,.xls">
+  <button class="knop" onclick="leesMotoren()">📤 Upload motorenlijst</button>
+  <div id="motorFeedback" style="margin-top:1em;"></div>
+</div>
 
-      <div class="card" id="opslag" style="display:none;">
-        <h2>📂 Opslagkoppeling</h2>
-        <p>Hier koppelen we straks externe opslaglocaties of synchronisaties.</p>
-      </div>
+
+      
+<div class="card" id="opslag" style="display:none;">
+  <h2>📂 Opslagbestand uploaden</h2>
+  <p>Upload hier een ZIP of tekstbestand van de bestandsstructuur:</p>
+  <input type="file" id="opslagUpload" accept=".txt,.json,.zip">
+  <button class="knop" onclick="leesOpslag()">📤 Upload</button>
+  <div id="opslagFeedback" style="margin-top:1em;"></div>
+</div>
+
     </div>
   </div>
 
@@ -178,14 +193,22 @@
       const w2 = document.getElementById("nieuw_wachtwoord2").value;
       const email = document.getElementById("nieuwe_email").value.trim();
 
-      if (!naam || !w1 || !w2 || !email) return alert("Vul alles in.");
+      if (!naam || !w1 || !w2 || !email) return alert("Vul alle velden in.");
       if (w1 !== w2) return alert("Wachtwoorden komen niet overeen.");
 
       const gebruikers = JSON.parse(localStorage.getItem("gebruikerslijst") || "[]");
       gebruikers.push({ gebruiker: naam, wachtwoord: w1, email });
       localStorage.setItem("gebruikerslijst", JSON.stringify(gebruikers));
+      resetForm();
       toonGebruikers();
-      alert("Gebruiker opgeslagen.");
+      alert("Gebruiker toegevoegd!");
+    }
+
+    function resetForm() {
+      document.getElementById("nieuwe_gebruiker").value = "";
+      document.getElementById("nieuw_wachtwoord1").value = "";
+      document.getElementById("nieuw_wachtwoord2").value = "";
+      document.getElementById("nieuwe_email").value = "";
     }
 
     function verwijder(i) {
@@ -205,7 +228,7 @@
         fromemail: document.getElementById("smtp_fromemail").value
       };
       localStorage.setItem("smtp_config", JSON.stringify(settings));
-      alert("SMTP opgeslagen");
+      alert("SMTP-instellingen opgeslagen!");
     }
 
     function opslaanOpmaak() {
@@ -214,7 +237,64 @@
       alert("Opmaak opgeslagen!");
     }
 
+    function leesSjabloon() {
+      const fileInput = document.getElementById('sjabloonUpload');
+      const feedback = document.getElementById('uploadFeedback');
+      if (!fileInput.files.length) {
+        feedback.textContent = "Geen bestand geselecteerd.";
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.SheetNames[0];
+        const json = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]);
+        localStorage.setItem("rapport_sjabloon", JSON.stringify(json));
+        feedback.innerHTML = "✅ Sjabloon opgeslagen.<br>Rijen geladen: " + json.length;
+      };
+      reader.readAsArrayBuffer(fileInput.files[0]);
+    }
+
     window.onload = toonGebruikers;
-  </script>
+  
+<script>
+  function leesMotoren() {
+    const fileInput = document.getElementById('motorUpload');
+    const feedback = document.getElementById('motorFeedback');
+    if (!fileInput.files.length) {
+      feedback.textContent = "Geen bestand geselecteerd.";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheet = workbook.SheetNames[0];
+      const json = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]);
+      localStorage.setItem("motorenlijst", JSON.stringify(json));
+      feedback.innerHTML = "✅ Motorgegevens opgeslagen.<br>Rijen geladen: " + json.length;
+    };
+    reader.readAsArrayBuffer(fileInput.files[0]);
+  }
+
+  function leesOpslag() {
+    const bestand = document.getElementById('opslagUpload');
+    const feedback = document.getElementById('opslagFeedback');
+    if (!bestand.files.length) {
+      feedback.textContent = "Geen bestand geselecteerd.";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const tekst = e.target.result;
+      localStorage.setItem("extern_opslagbestand", tekst);
+      feedback.innerHTML = "✅ Bestandsstructuur opgeslagen.";
+    };
+    reader.readAsText(bestand.files[0]);
+  }
+</script>
+
+</script>
 </body>
 </html>
