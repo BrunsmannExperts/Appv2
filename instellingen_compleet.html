@@ -1,205 +1,69 @@
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Instellingen</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="/js/config.js"></script>
-  <script src="/js/app.js"></script>
+  <title>Instellingen – Brunsmann Experts</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-    nav a {
-      margin-right: 10px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .tabcontent {
-      display: none;
-      margin-top: 20px;
-    }
-    .tabcontent.active {
-      display: block;
-    }
+    body { font-family: sans-serif; padding: 2em; background: #f2f6fa; }
+    input, button { padding: 0.5em; margin: 0.5em 0; display: block; width: 300px; }
+    .knop { background-color: #003366; color: white; border: none; border-radius: 6px; padding: 0.5em 1em; cursor: pointer; margin-top: 1em; }
+    .knop:hover { background-color: #005199; }
+    .user-card { background: white; border: 1px solid #ccc; border-radius: 8px; padding: 1em; margin-bottom: 1em; }
   </style>
 </head>
 <body>
-  <h1>Instellingen</h1>
-  <nav>
-    <a onclick="openTab('gebruikers')">Gebruikers</a>
-    <a onclick="openTab('rapport')">Rapportstructuur</a>
-    <a onclick="openTab('opmaak')">Opmaak</a>
-    <a onclick="openTab('opslag')">Opslag</a>
-    <a onclick="openTab('motoren')">Motordatabank</a>
-  </nav>
+  <h1>⚙️ Instellingen – Gebruikersbeheer</h1>
 
-  <div id="gebruikers" class="tabcontent">
-    <h2>Gebruikersbeheer</h2>
-    <p>(Reeds gebouwd, behouden)</p>
-  </div>
+  <h2>👥 Bestaande gebruikers</h2>
+  <div id="gebruikerslijst"></div>
 
-  <div id="rapport" class="tabcontent">
-    <h2>Excel Upload – Rapportstructuur</h2>
-    <input type="file" id="excelInput" accept=".xlsx" />
-    <p><em>Selecteer een Excelbestand met kolommen als 'Hoofdstuk', 'Veldnaam', 'Toelichting', 'Type', 'Verplicht'.</em></p>
-    <div id="previewTableContainer">
-      <h3>Voorbeeld van ingelezen structuur:</h3>
-      <table border="1" id="previewTable"><thead></thead><tbody></tbody></table>
-    </div>
-  </div>
+  <h2>➕ Nieuwe gebruiker toevoegen</h2>
+  <input type="text" id="nieuwe_gebruiker" placeholder="Gebruikersnaam">
+  <input type="password" id="nieuw_wachtwoord" placeholder="Wachtwoord">
+  <button class="knop" onclick="toevoegen()">Gebruiker toevoegen</button>
 
-  <div id="opmaak" class="tabcontent">
-    <h2>Opmaak & Thema</h2>
-    <label>Kleur knoppen:<input type="color" id="kleur" value="#007bff"></label><br><br>
-    <label>Tekstkleur:<input type="color" id="tekstkleur" value="#000000"></label><br><br>
-    <label>Achtergrondkleur:<input type="color" id="achtergrond" value="#ffffff"></label><br><br>
-    <label>Lettergrootte:<select id="lettergrootte">
-      <option value="14px">Klein</option>
-      <option value="16px" selected>Normaal</option>
-      <option value="18px">Groot</option>
-    </select></label><br><br>
-    <label>Knopvorm:<select id="randen">
-      <option value="0px">Hoekig</option>
-      <option value="6px" selected>Afgerond</option>
-      <option value="12px">Extra rond</option>
-    </select></label><br><br>
-    <button onclick="opslaanThema()">Opslaan</button>
-  </div>
-
-  <div id="opslag" class="tabcontent">
-    <h2>Opslaginstellingen (Supabase)</h2>
-    <label>Supabase Project URL:<br>
-      <input type="text" id="supabaseUrl" style="width: 100%;">
-    </label><br><br>
-    <label>Supabase API Key:<br>
-      <input type="password" id="supabaseKey" style="width: 100%;">
-    </label><br><br>
-    <label>Standaard opslagmap:<br>
-      <input type="text" id="defaultFolder" value="rapporten/" style="width: 100%;">
-    </label><br><br>
-    <button onclick="opslaanOpslagInstellingen()">💾 Opslaan instellingen</button>
-    <button onclick="checkOpslag()">🔁 Check verbinding</button>
-    <p id="opslagStatus"></p>
-  </div>
-
-  <div id="motoren" class="tabcontent">
-    <h2>Motordatabank – Merken uploaden</h2>
-    <p>Upload per merk een Excelbestand met motorgegevens. Kolommen: Motortype, Cilinders, PK, Brandstof, Opmerkingen.</p>
-    <input type="file" id="motorbestand" accept=".xlsx" />
-    <input type="text" id="merknaam" placeholder="Bijv. Yanmar" />
-    <button onclick="slaMotorbestandOp()">💾 Opslaan merkbestand</button>
-    <h3>📋 Ingeladen merken:</h3>
-    <ul id="motormerkenlijst"></ul>
-  </div>
+  <button class="knop" onclick="window.location.href='dashboard.html'">🏠 Terug naar dashboard</button>
 
   <script>
-    function openTab(tabName) {
-      document.querySelectorAll('.tabcontent').forEach(tab => tab.classList.remove('active'));
-      document.getElementById(tabName).classList.add('active');
-    }
+    function toonGebruikers() {
+      const gebruikers = JSON.parse(localStorage.getItem("gebruikerslijst") || "[]");
+      const container = document.getElementById("gebruikerslijst");
+      container.innerHTML = "";
 
-    document.addEventListener("DOMContentLoaded", () => {
-      openTab('gebruikers');
-      laadOpslagInstellingen();
-      laadThema();
-      toonMotormerken();
-    });
-
-    function opslaanThema() {
-      const theme = {
-        primaryColor: document.getElementById("kleur").value,
-        textColor: document.getElementById("tekstkleur").value,
-        backgroundColor: document.getElementById("achtergrond").value,
-        fontSize: document.getElementById("lettergrootte").value,
-        borderRadius: document.getElementById("randen").value,
-      };
-      localStorage.setItem("theme", JSON.stringify(theme));
-      location.reload();
-    }
-
-    function laadThema() {
-      const theme = JSON.parse(localStorage.getItem("theme"));
-      if (!theme) return;
-      document.getElementById("kleur").value = theme.primaryColor;
-      document.getElementById("tekstkleur").value = theme.textColor;
-      document.getElementById("achtergrond").value = theme.backgroundColor;
-      document.getElementById("lettergrootte").value = theme.fontSize;
-      document.getElementById("randen").value = theme.borderRadius;
-    }
-
-    function opslaanOpslagInstellingen() {
-      const instellingen = {
-        url: document.getElementById("supabaseUrl").value,
-        key: document.getElementById("supabaseKey").value,
-        folder: document.getElementById("defaultFolder").value
-      };
-      localStorage.setItem("supabase_config", JSON.stringify(instellingen));
-      alert("✅ Opgeslagen!");
-    }
-
-    function laadOpslagInstellingen() {
-      const config = JSON.parse(localStorage.getItem("supabase_config"));
-      if (!config) return;
-      document.getElementById("supabaseUrl").value = config.url || "";
-      document.getElementById("supabaseKey").value = config.key || "";
-      document.getElementById("defaultFolder").value = config.folder || "rapporten/";
-    }
-
-    async function checkOpslag() {
-      const config = JSON.parse(localStorage.getItem("supabase_config"));
-      if (!config?.url || !config?.key) {
-        document.getElementById("opslagStatus").textContent = "❌ Vul eerst de instellingen in.";
-        return;
-      }
-      try {
-        const response = await fetch(`${config.url}/rest/v1/`, {
-          method: "GET",
-          headers: {
-            apikey: config.key,
-            Authorization: "Bearer " + config.key
-          }
-        });
-        if (response.ok) {
-          document.getElementById("opslagStatus").textContent = "✅ Verbonden met Supabase.";
-        } else {
-          document.getElementById("opslagStatus").textContent = "❌ Geen verbinding mogelijk.";
-        }
-      } catch (err) {
-        document.getElementById("opslagStatus").textContent = "❌ Fout bij verbinden: " + err.message;
-      }
-    }
-
-    function slaMotorbestandOp() {
-      const merk = document.getElementById("merknaam").value.trim();
-      const bestand = document.getElementById("motorbestand").files[0];
-      if (!merk || !bestand) {
-        alert("Vul een merknaam in en kies een bestand.");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const base64 = e.target.result.split("base64,")[1];
-        localStorage.setItem("motorbestand_" + merk.toLowerCase(), base64);
-        const huidige = JSON.parse(localStorage.getItem("motor_merken") || "[]");
-        if (!huidige.includes(merk.toLowerCase())) {
-          huidige.push(merk.toLowerCase());
-          localStorage.setItem("motor_merken", JSON.stringify(huidige));
-        }
-        toonMotormerken();
-        alert("✅ Bestand opgeslagen voor merk: " + merk);
-      };
-      reader.readAsDataURL(bestand);
-    }
-
-    function toonMotormerken() {
-      const lijst = document.getElementById("motormerkenlijst");
-      lijst.innerHTML = "";
-      const merken = JSON.parse(localStorage.getItem("motor_merken") || "[]");
-      merken.forEach(m => {
-        const li = document.createElement("li");
-        li.textContent = m.charAt(0).toUpperCase() + m.slice(1);
-        lijst.appendChild(li);
+      gebruikers.forEach((g, i) => {
+        const div = document.createElement("div");
+        div.className = "user-card";
+        div.innerHTML = `
+          <strong>${g.gebruiker}</strong><br>
+          <button onclick="verwijder(${i})">❌ Verwijder</button>
+        `;
+        container.appendChild(div);
       });
     }
+
+    function toevoegen() {
+      const naam = document.getElementById("nieuwe_gebruiker").value.trim();
+      const wachtwoord = document.getElementById("nieuw_wachtwoord").value;
+
+      if (!naam || !wachtwoord) return alert("Vul naam én wachtwoord in.");
+      const gebruikers = JSON.parse(localStorage.getItem("gebruikerslijst") || "[]");
+      gebruikers.push({ gebruiker: naam, wachtwoord });
+      localStorage.setItem("gebruikerslijst", JSON.stringify(gebruikers));
+      document.getElementById("nieuwe_gebruiker").value = "";
+      document.getElementById("nieuw_wachtwoord").value = "";
+      toonGebruikers();
+    }
+
+    function verwijder(index) {
+      const gebruikers = JSON.parse(localStorage.getItem("gebruikerslijst") || "[]");
+      gebruikers.splice(index, 1);
+      localStorage.setItem("gebruikerslijst", JSON.stringify(gebruikers));
+      toonGebruikers();
+    }
+
+    window.onload = toonGebruikers;
   </script>
 </body>
 </html>
