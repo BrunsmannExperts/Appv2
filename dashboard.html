@@ -27,19 +27,16 @@
       font-size: 1.2em;
       margin-bottom: 1em;
     }
-    .sidebar button, .sidebar a {
+    .sidebar a {
       display: block;
       width: 100%;
       background: none;
       color: white;
-      border: none;
-      padding: 0.6em 0;
-      text-align: left;
-      font-size: 1em;
       text-decoration: none;
-      cursor: pointer;
+      padding: 0.6em 0;
+      font-size: 1em;
     }
-    .sidebar button:hover, .sidebar a:hover {
+    .sidebar a:hover {
       background-color: #005199;
     }
     .main {
@@ -50,21 +47,11 @@
     .userlabel {
       font-size: 0.9em;
       color: #666;
-      margin-bottom: 2em;
+      margin-bottom: 1em;
     }
-    .knop {
-      display: inline-block;
-      margin: 0.5em 1em 0.5em 0;
-      padding: 0.6em 1.2em;
-      background-color: #003366;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      text-decoration: none;
-      font-size: 1em;
-    }
-    .knop:hover {
-      background-color: #005199;
+    .stats {
+      margin-top: 2em;
+      font-size: 1.1em;
     }
   </style>
 </head>
@@ -80,15 +67,17 @@
     <div class="main">
       <div class="userlabel">Ingelogd als: <span id="gebruikersnaam">gebruiker</span></div>
       <h1>Welkom bij Brunsmann Experts</h1>
-      <p>Kies hieronder wat je wilt doen:</p>
-      <a class="knop" href="klanten_overzicht.html">➕ Nieuwe klant</a>
-      <a class="knop" href="rapport_start.html">📝 Nieuw rapport</a>
-      <a class="knop" href="rapport_export_word.html">⬇️ Export rapport</a>
+      <p>Gebruik het menu aan de linkerkant om te starten.</p>
+      <div class="stats">
+        <p><strong>📊 Totaal klanten:</strong> <span id="totaalKlanten">...</span></p>
+      </div>
     </div>
   </div>
 
   <script>
     document.getElementById("gebruikersnaam").textContent = localStorage.getItem("gebruiker") || "gebruiker";
+    const klanten = JSON.parse(localStorage.getItem("klanten") || "[]");
+    document.getElementById("totaalKlanten").textContent = klanten.length;
   </script>
 </body>
 </html>
