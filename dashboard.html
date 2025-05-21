@@ -1,55 +1,30 @@
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
   <title>Dashboard – Brunsmann Experts</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 2em;
-      background: #f2f6fa;
-    }
-    h1 {
-      margin-bottom: 0.5em;
-    }
-    .sectie {
-      margin: 2em 0;
-    }
+    body { font-family: sans-serif; padding: 2em; background: #f2f6fa; }
     .knop {
       display: inline-block;
-      margin: 0.5em 1em 0.5em 0;
-      padding: 0.7em 1.4em;
+      margin: 1em 0;
+      padding: 1em 2em;
       background-color: #003366;
       color: white;
       border: none;
       border-radius: 8px;
       text-decoration: none;
+      font-size: 1.1em;
     }
-    .knop:hover {
-      background-color: #005199;
-    }
+    .knop:hover { background-color: #005199; }
   </style>
 </head>
 <body>
   <h1>Welkom, <span id="gebruikersnaam"></span></h1>
-  <p>Gebruik onderstaande knoppen om door de app te navigeren:</p>
-
-  <div class="sectie">
-    <h2>🔧 Rapportage</h2>
-    <a class="knop" href="klanten_boot_toevoegen.html">➕ Nieuwe boot toevoegen</a>
-    <a class="knop" href="rapport_start.html">📋 Rapport starten</a>
-    <a class="knop" href="rapport_paraafcontrole.html">✅ Rapport controleren</a>
-    <a class="knop" href="rapport_export_word.html">⬇️ Export (Word)</a>
-  </div>
-
-  <div class="sectie">
-    <h2>⚙️ Instellingen</h2>
-    <a class="knop" href="instellingen_compleet.html">🔧 Open instellingen</a>
-  </div>
-
-  <div class="sectie">
-    <a class="knop" href="index_landing_brunsmann.html">↩️ Uitloggen</a>
-  </div>
+  <p>Gebruik de onderstaande knop om naar het klantenoverzicht te gaan.</p>
+  <a class="knop" href="klanten_overzicht.html">👥 Klanten</a>
 
   <script>
     document.getElementById("gebruikersnaam").textContent = localStorage.getItem("gebruiker") || "gebruiker";
