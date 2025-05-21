@@ -11,6 +11,7 @@
     .knop { background-color: #003366; color: white; border: none; border-radius: 6px; padding: 0.5em 1em; cursor: pointer; margin-top: 1em; }
     .knop:hover { background-color: #005199; }
     .user-card { background: white; border: 1px solid #ccc; border-radius: 8px; padding: 1em; margin-bottom: 1em; }
+    .sectie { margin-top: 3em; }
   </style>
 </head>
 <body>
@@ -21,10 +22,18 @@
 
   <h2>➕ Nieuwe gebruiker toevoegen</h2>
   <input type="text" id="nieuwe_gebruiker" placeholder="Gebruikersnaam">
-  <input type="password" id="nieuw_wachtwoord" placeholder="Wachtwoord">
+  <input type="password" id="nieuw_wachtwoord1" placeholder="Wachtwoord">
+  <input type="password" id="nieuw_wachtwoord2" placeholder="Herhaal wachtwoord">
   <button class="knop" onclick="toevoegen()">Gebruiker toevoegen</button>
 
-  <button class="knop" onclick="window.location.href='dashboard.html'">🏠 Terug naar dashboard</button>
+  <div class="sectie">
+    <h2>🛠 Overige instellingen</h2>
+    <button class="knop" onclick="window.location.href='rapportstructuur_filter.html'">📄 Rapportstructuur instellen</button>
+    <button class="knop" onclick="window.location.href='opmaak_thema.html'">🎨 Opmaak & thema</button>
+    <button class="knop" onclick="window.location.href='rapport_export_word.html'">📤 Exports & versies</button>
+  </div>
+
+  <button class="knop" onclick="resetForm(); window.location.href='dashboard.html';">🏠 Terug naar dashboard</button>
 
   <script>
     function toonGebruikers() {
@@ -45,15 +54,18 @@
 
     function toevoegen() {
       const naam = document.getElementById("nieuwe_gebruiker").value.trim();
-      const wachtwoord = document.getElementById("nieuw_wachtwoord").value;
+      const w1 = document.getElementById("nieuw_wachtwoord1").value;
+      const w2 = document.getElementById("nieuw_wachtwoord2").value;
 
-      if (!naam || !wachtwoord) return alert("Vul naam én wachtwoord in.");
+      if (!naam || !w1 || !w2) return alert("Vul alle velden in.");
+      if (w1 !== w2) return alert("Wachtwoorden komen niet overeen.");
+
       const gebruikers = JSON.parse(localStorage.getItem("gebruikerslijst") || "[]");
-      gebruikers.push({ gebruiker: naam, wachtwoord });
+      gebruikers.push({ gebruiker: naam, wachtwoord: w1 });
       localStorage.setItem("gebruikerslijst", JSON.stringify(gebruikers));
-      document.getElementById("nieuwe_gebruiker").value = "";
-      document.getElementById("nieuw_wachtwoord").value = "";
+      resetForm();
       toonGebruikers();
+      alert("Gebruiker toegevoegd!");
     }
 
     function verwijder(index) {
@@ -61,6 +73,12 @@
       gebruikers.splice(index, 1);
       localStorage.setItem("gebruikerslijst", JSON.stringify(gebruikers));
       toonGebruikers();
+    }
+
+    function resetForm() {
+      document.getElementById("nieuwe_gebruiker").value = "";
+      document.getElementById("nieuw_wachtwoord1").value = "";
+      document.getElementById("nieuw_wachtwoord2").value = "";
     }
 
     window.onload = toonGebruikers;
