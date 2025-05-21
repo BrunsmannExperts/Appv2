@@ -79,7 +79,7 @@
       <div class="userlabel">Ingelogd als: <span id="gebruikersnaam">...</span></div>
       <h1>Klantgegevens</h1>
       <div>
-        <input type="text" id="klantnummer" placeholder="Klantnummer" readonly>
+        <input type="text" id="klantnummer" placeholder="Klantnummer (leeg = automatisch)">
         <input type="text" id="naam" placeholder="Naam">
         <input type="text" id="email" placeholder="E-mailadres">
         <input type="text" id="telefoon" placeholder="Telefoonnummer">
@@ -105,12 +105,14 @@
   <script>
     document.getElementById("gebruikersnaam").textContent = localStorage.getItem("gebruiker") || "gebruiker";
 
-    const klantnummer = localStorage.getItem("actieve_klant");
     const klanten = JSON.parse(localStorage.getItem("klanten") || "[]");
-    let klant = klanten.find(k => k.klantnummer == klantnummer);
+    const klantnummerInput = document.getElementById("klantnummer");
+    const actieveKlant = localStorage.getItem("actieve_klant");
+    let klant = {};
 
-    if (klant) {
-      document.getElementById("klantnummer").value = klant.klantnummer;
+    if (actieveKlant) {
+      klant = klanten.find(k => k.klantnummer == actieveKlant) || {};
+      klantnummerInput.value = klant.klantnummer;
       document.getElementById("naam").value = klant.naam || "";
       document.getElementById("email").value = klant.email || "";
       document.getElementById("telefoon").value = klant.telefoon || "";
@@ -119,21 +121,42 @@
       document.getElementById("woonplaats").value = klant.woonplaats || "";
       document.getElementById("land").value = klant.land || "";
       toonDocumenten();
+    } else {
+      const hoogste = klanten.reduce((max, k) => Math.max(max, k.klantnummer || 0), 0);
+      klantnummerInput.placeholder = "Leeg = automatisch (" + (hoogste + 1) + ")";
     }
 
     function opslaan() {
-      klant.naam = document.getElementById("naam").value;
-      klant.email = document.getElementById("email").value;
-      klant.telefoon = document.getElementById("telefoon").value;
-      klant.adres = document.getElementById("adres").value;
-      klant.postcode = document.getElementById("postcode").value;
-      klant.woonplaats = document.getElementById("woonplaats").value;
-      klant.land = document.getElementById("land").value;
+      const ingevuldNummer = klantnummerInput.value.trim();
+      const gegenereerdNummer = ingevuldNummer ? parseInt(ingevuldNummer) : klanten.reduce((max, k) => Math.max(max, k.klantnummer || 0), 0) + 1;
 
-      const index = klanten.findIndex(k => k.klantnummer == klant.klantnummer);
-      if (index >= 0) klanten[index] = klant;
+      if (!actieveKlant && klanten.find(k => k.klantnummer == gegenereerdNummer)) {
+        alert("Let op: klantnummer bestaat al. Kies een ander of laat leeg.");
+        return;
+      }
+
+      const nieuweKlant = {
+        klantnummer: gegenereerdNummer,
+        naam: document.getElementById("naam").value,
+        email: document.getElementById("email").value,
+        telefoon: document.getElementById("telefoon").value,
+        adres: document.getElementById("adres").value,
+        postcode: document.getElementById("postcode").value,
+        woonplaats: document.getElementById("woonplaats").value,
+        land: document.getElementById("land").value,
+        aangemaakt_op: klant.aangemaakt_op || new Date().toISOString(),
+        documenten: klant.documenten || []
+      };
+
+      const index = klanten.findIndex(k => k.klantnummer == nieuweKlant.klantnummer);
+      if (index >= 0) klanten[index] = nieuweKlant;
+      else klanten.push(nieuweKlant);
+
       localStorage.setItem("klanten", JSON.stringify(klanten));
-      alert("Gegevens opgeslagen!");
+      localStorage.setItem("actieve_klant", nieuweKlant.klantnummer);
+      klant = nieuweKlant;
+      alert("Klant opgeslagen!");
+      toonDocumenten();
     }
 
     function toonDocumenten() {
