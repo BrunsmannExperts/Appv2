@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Rapport – Navigatieapparatuur</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/config.js"></script>
+  <script src="/js/app.js"></script>
+  <style>
+    textarea, select {
+      width: 100%;
+      margin-bottom: 1em;
+    }
+    .labelblok {
+      font-weight: bold;
+      margin-top: 1em;
+    }
+    .preview {
+      max-width: 300px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Navigatieapparatuur</h1>
+  <p>Controle van de aanwezigheid en werking van navigatiemiddelen zoals marifoon, GPS, kaartplotter, dieptemeter, kompas en automatische piloot.</p>
+
+  <label class="labelblok">Beoordeling navigatieapparatuur:</label>
+  <select id="navigatie_staat">
+    <option value="">-- Kies beoordeling --</option>
+    <option>Goed</option>
+    <option>Redelijk</option>
+    <option>Voldoende</option>
+    <option>Matig</option>
+    <option>Slecht</option>
+  </select>
+
+  <label class="labelblok">Aanwezige apparatuur:</label>
+  <input type="text" id="navigatie_apparatuur" placeholder="Bijv. Raymarine plotter, marifoon, kompas" />
+
+  <label class="labelblok">Opmerkingen / bijzonderheden:</label>
+  <textarea id="navigatie_opmerkingen" rows="4" placeholder="Bijv. plotter werkt goed, kompas los, marifoon verouderd."></textarea>
+  <button onclick="vraagNavigatieSuggestie()">💡 AI-suggestie</button>
+
+  <label class="labelblok">Foto(‘s) navigatie:</label>
+  <input type="file" accept="image/*" onchange="toonNavigatiePreview(event)">
+  <img id="navigatie_foto_preview" class="preview" src="">
+
+  <script>
+    function vraagNavigatieSuggestie() {
+      if (!OPENAI_API_KEY) return alert("Geen API-sleutel ingevuld.");
+      const prompt = "Je bent scheepsexpert. Geef een korte rapporttekst over navigatieapparatuur: plotter en GPS werken prima, kompas niet getest.";
+      fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + OPENAI_API_KEY
+        },
+        body: JSON.stringify({
+          model: "gpt-4",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 150
+        })
+      }).then(r => r.json()).then(data => {
+        document.getElementById("navigatie_opmerkingen").value = data.choices[0].message.content.trim();
+      });
+    }
+
+    function toonNavigatiePreview(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        document.getElementById("navigatie_foto_preview").src = event.target.result;
+        localStorage.setItem("navigatie_foto", event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>
