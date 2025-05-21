@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Rapportcontrole en parafen</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    h2 { margin-top: 1.5em; }
+    label { display: block; margin-top: 1em; }
+    input[type="text"] {
+      padding: 0.5em;
+      width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Controle en parafen</h1>
+  <p>Controleer het rapport en plaats per onderdeel een paraaf.</p>
+  <form id="parafenForm">
+    <div id="hoofdstukkenParaaf"></div>
+    <button type="submit">✔️ Bevestig & sla op</button>
+  </form>
+
+  <script>
+    const hoofdstukken = [
+      "CE", "Romp", "Dek", "Interieur", "Motor", "Elektra",
+      "Navigatie", "Veiligheid", "Gasinstallatie", "Toilet",
+      "Stuurinrichting"
+    ];
+
+    const container = document.getElementById("hoofdstukkenParaaf");
+
+    hoofdstukken.forEach(hoofdstuk => {
+      const sectie = document.createElement("div");
+      const label = document.createElement("label");
+      label.textContent = `Paraaf voor ${hoofdstuk}:`;
+      const input = document.createElement("input");
+      input.type = "text";
+      input.id = `paraaf_${hoofdstuk.toLowerCase()}`;
+      input.placeholder = "Initialen";
+      sectie.appendChild(label);
+      sectie.appendChild(input);
+      container.appendChild(sectie);
+    });
+
+    document.getElementById("parafenForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const parafen = {};
+      hoofdstukken.forEach(hoofdstuk => {
+        const waarde = document.getElementById(`paraaf_${hoofdstuk.toLowerCase()}`).value;
+        parafen[hoofdstuk] = waarde;
+      });
+      localStorage.setItem("rapport_parafen", JSON.stringify(parafen));
+      alert("✅ Parafen opgeslagen. Klaar voor export.");
+    });
+  </script>
+</body>
+</html>
