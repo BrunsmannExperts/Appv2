@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Klantenoverzicht – Brunsmann Experts</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: sans-serif; padding: 2em; background: #f2f6fa; }
+    input, button { padding: 0.5em; margin: 0.5em; }
+    .klantkaart { border: 1px solid #ccc; border-radius: 8px; padding: 1em; margin-bottom: 1em; background: white; }
+  </style>
+</head>
+<body>
+  <h1>Klantenoverzicht</h1>
+  <input type="text" id="zoeknaam" placeholder="Zoek op naam">
+  <input type="text" id="zoeknummer" placeholder="Zoek op klantnummer">
+  <button onclick="toonKlanten()">🔍 Filter</button>
+  <button onclick="window.location.href='klant_detail.html'">➕ Nieuwe klant</button>
+  <div id="klantenlijst"></div>
+
+  <button onclick="window.location.href='dashboard.html'">🏠 Terug naar dashboard</button>
+
+  <script>
+    function toonKlanten() {
+      const zoeknaam = document.getElementById("zoeknaam").value.toLowerCase();
+      const zoeknummer = document.getElementById("zoeknummer").value;
+      const klanten = JSON.parse(localStorage.getItem("klanten") || "[]");
+      const container = document.getElementById("klantenlijst");
+      container.innerHTML = "";
+
+      klanten.filter(k => 
+        (!zoeknaam || k.naam.toLowerCase().includes(zoeknaam)) &&
+        (!zoeknummer || k.klantnummer.toString().includes(zoeknummer))
+      ).forEach(k => {
+        const div = document.createElement("div");
+        div.className = "klantkaart";
+        div.innerHTML = `<strong>${k.naam}</strong><br>Klantnummer: ${k.klantnummer}<br>
+                         <button onclick="openKlant(${k.klantnummer})">📂 Open</button>`;
+        container.appendChild(div);
+      });
+    }
+
+    function openKlant(klantnummer) {
+      localStorage.setItem("actieve_klant", klantnummer);
+      window.location.href = "klant_detail.html";
+    }
+
+    window.onload = toonKlanten;
+  </script>
+</body>
+</html>
