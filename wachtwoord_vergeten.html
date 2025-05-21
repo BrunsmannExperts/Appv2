@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Wachtwoord vergeten – Brunsmann Experts</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: sans-serif; background: #eef2f5; padding: 2em; }
+    .container { max-width: 600px; margin: 0 auto; background: white; padding: 2em; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+    input, button {
+      width: 100%;
+      padding: 0.75em;
+      margin-top: 1em;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+    button {
+      background-color: #003366;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005199;
+    }
+    .info { margin-top: 1em; color: green; }
+    .error { margin-top: 1em; color: red; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 Wachtwoord vergeten</h1>
+    <p>Vul hieronder je gebruikersnaam in. Als we je kunnen vinden, sturen we een nieuw wachtwoord naar het e-mailadres dat bij je account hoort.</p>
+    <input type="text" id="gebruikersnaam" placeholder="Gebruikersnaam">
+    <button onclick="verzendReset()">📧 Stuur nieuw wachtwoord</button>
+    <p id="feedback"></p>
+    <button onclick="window.location.href='login.html'">🔙 Terug naar inloggen</button>
+  </div>
+
+  <script>
+    async function verzendReset() {
+      const gebruikersnaam = document.getElementById("gebruikersnaam").value.trim();
+      const gebruikers = JSON.parse(localStorage.getItem("gebruikerslijst") || "[]");
+      const smtp = JSON.parse(localStorage.getItem("smtp_config") || "{}");
+      const match = gebruikers.find(g => g.gebruiker === gebruikersnaam);
+
+      const feedback = document.getElementById("feedback");
+
+      if (!match || !match.email) {
+        feedback.textContent = "Gebruiker niet gevonden of geen e-mailadres ingesteld.";
+        feedback.className = "error";
+        return;
+      }
+
+      // Genereer nieuw wachtwoord
+      const nieuwWachtwoord = Math.random().toString(36).slice(-8);
+      match.wachtwoord = nieuwWachtwoord;
+      localStorage.setItem("gebruikerslijst", JSON.stringify(gebruikers));
+
+      const payload = {
+        smtp,
+        to: match.email,
+        subject: "Nieuw wachtwoord voor Brunsmann Experts",
+        body: `Hallo ${match.gebruiker},\n\nJe nieuwe wachtwoord is: ${nieuwWachtwoord}\n\nJe kunt nu weer inloggen.`
+      };
+
+      try {
+        const res = await fetch("/.netlify/functions/sendmail", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.text();
+        if (res.ok) {
+          feedback.textContent = "Er is een e-mail verzonden met je nieuwe wachtwoord.";
+          feedback.className = "info";
+        } else {
+          feedback.textContent = "Fout bij verzenden: " + result;
+          feedback.className = "error";
+        }
+      } catch (err) {
+        feedback.textContent = "Netwerkfout of server onbereikbaar.";
+        feedback.className = "error";
+      }
+    }
+  </script>
+</body>
+</html>
