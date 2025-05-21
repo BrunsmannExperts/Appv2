@@ -6,34 +6,87 @@
   <title>Instellingen – Brunsmann Experts</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    body { font-family: sans-serif; padding: 2em; background: #f2f6fa; }
-    input, button { padding: 0.5em; margin: 0.5em 0; display: block; width: 300px; }
-    .knop { background-color: #003366; color: white; border: none; border-radius: 6px; padding: 0.5em 1em; cursor: pointer; margin-top: 1em; }
-    .knop:hover { background-color: #005199; }
-    .user-card { background: white; border: 1px solid #ccc; border-radius: 8px; padding: 1em; margin-bottom: 1em; }
-    .sectie { margin-top: 3em; }
+    body {
+      font-family: sans-serif;
+      padding: 2em;
+      background: #eef2f5;
+      color: #222;
+    }
+    h1, h2 {
+      color: #003366;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      padding: 2em;
+      margin-bottom: 2em;
+    }
+    input, button {
+      padding: 0.75em;
+      margin: 0.5em 0;
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+    }
+    button.knop {
+      background-color: #003366;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+    button.knop:hover {
+      background-color: #005199;
+    }
+    .user-card {
+      background: #f9f9f9;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 1em;
+      margin-bottom: 1em;
+    }
+    .sectie-knoppen button {
+      margin-right: 1em;
+      margin-bottom: 0.5em;
+      width: auto;
+      display: inline-block;
+    }
   </style>
 </head>
 <body>
-  <h1>⚙️ Instellingen – Gebruikersbeheer</h1>
+  <div class="container">
+    <h1>⚙️ Instellingen</h1>
 
-  <h2>👥 Bestaande gebruikers</h2>
-  <div id="gebruikerslijst"></div>
+    <div class="card">
+      <h2>👥 Gebruikersbeheer</h2>
+      <div id="gebruikerslijst"></div>
 
-  <h2>➕ Nieuwe gebruiker toevoegen</h2>
-  <input type="text" id="nieuwe_gebruiker" placeholder="Gebruikersnaam">
-  <input type="password" id="nieuw_wachtwoord1" placeholder="Wachtwoord">
-  <input type="password" id="nieuw_wachtwoord2" placeholder="Herhaal wachtwoord">
-  <button class="knop" onclick="toevoegen()">Gebruiker toevoegen</button>
+      <h3>➕ Nieuwe gebruiker toevoegen</h3>
+      <input type="text" id="nieuwe_gebruiker" placeholder="Gebruikersnaam">
+      <input type="password" id="nieuw_wachtwoord1" placeholder="Wachtwoord">
+      <input type="password" id="nieuw_wachtwoord2" placeholder="Herhaal wachtwoord">
+      <button class="knop" onclick="toevoegen()">Gebruiker toevoegen</button>
+    </div>
 
-  <div class="sectie">
-    <h2>🛠 Overige instellingen</h2>
-    <button class="knop" onclick="window.location.href='rapportstructuur_filter.html'">📄 Rapportstructuur instellen</button>
-    <button class="knop" onclick="window.location.href='opmaak_thema.html'">🎨 Opmaak & thema</button>
-    <button class="knop" onclick="window.location.href='rapport_export_word.html'">📤 Exports & versies</button>
+    <div class="card">
+      <h2>🛠 Overige instellingen</h2>
+      <div class="sectie-knoppen">
+        <button class="knop" onclick="window.location.href='rapportstructuur_filter.html'">📄 Rapportstructuur instellen</button>
+        <button class="knop" onclick="window.location.href='opmaak_thema.html'">🎨 Opmaak & thema</button>
+        <button class="knop" onclick="window.location.href='rapport_export_word.html'">📤 Exports & versies</button>
+      </div>
+    </div>
+
+    <button class="knop" onclick="resetForm(); window.location.href='dashboard.html';">🏠 Terug naar dashboard</button>
   </div>
-
-  <button class="knop" onclick="resetForm(); window.location.href='dashboard.html';">🏠 Terug naar dashboard</button>
 
   <script>
     function toonGebruikers() {
