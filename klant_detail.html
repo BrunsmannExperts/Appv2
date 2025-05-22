@@ -41,26 +41,27 @@
 </head>
 <body>
   <h1>Klantgegevens</h1>
-  <form id="klantForm">
+  <form id="klantForm" onsubmit="event.preventDefault();">
     <label for="naam">Naam:</label>
-    <input type="text" id="naam">
+    <input type="text" id="naam" disabled>
 
     <label for="adres">Adres:</label>
-    <input type="text" id="adres">
+    <input type="text" id="adres" disabled>
 
     <label for="postcode">Postcode:</label>
-    <input type="text" id="postcode">
+    <input type="text" id="postcode" disabled>
 
     <label for="woonplaats">Woonplaats:</label>
-    <input type="text" id="woonplaats">
+    <input type="text" id="woonplaats" disabled>
 
     <label for="telefoon">Telefoonnummer:</label>
-    <input type="tel" id="telefoon">
+    <input type="tel" id="telefoon" disabled>
 
     <label for="email">E-mailadres:</label>
-    <input type="email" id="email">
+    <input type="email" id="email" disabled>
 
-    <button type="button" onclick="opslaanKlant()">Opslaan klantgegevens</button>
+    <button type="button" id="bewerkBtn" onclick="toggleBewerken()">Klantgegevens aanpassen</button>
+    <button type="button" id="opslaanBtn" style="display:none;" onclick="opslaanKlant()">Opslaan klantgegevens</button>
   </form>
 
   <hr>
@@ -70,6 +71,22 @@
   <div id="documentenContainer"></div>
 
   <script>
+    function toggleBewerken() {
+      const velden = document.querySelectorAll('#klantForm input');
+      const aanpassen = document.getElementById('bewerkBtn');
+      const opslaan = document.getElementById('opslaanBtn');
+      velden.forEach(v => v.disabled = false);
+      aanpassen.style.display = 'none';
+      opslaan.style.display = 'inline-block';
+    }
+
+    function vergrendelFormulier() {
+      const velden = document.querySelectorAll('#klantForm input');
+      velden.forEach(v => v.disabled = true);
+      document.getElementById('bewerkBtn').style.display = 'inline-block';
+      document.getElementById('opslaanBtn').style.display = 'none';
+    }
+
     let klantId = null;
 
     window.onload = function() {
@@ -110,6 +127,7 @@
       });
       localStorage.setItem(klantKey, JSON.stringify(data));
       alert('Klantgegevens opgeslagen');
+      vergrendelFormulier();
       document.getElementById("documentenContainer").style.display = "block";
       document.getElementById("zoekveld").style.display = "block";
       document.getElementById("nieuweDocBtn").style.display = "inline-block";
