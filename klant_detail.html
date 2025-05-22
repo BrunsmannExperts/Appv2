@@ -34,6 +34,9 @@
       text-decoration: none; border: none; border-radius: 5px;
       margin-right: 5px; cursor: pointer;
     }
+    #documentenContainer, #zoekveld, #nieuweDocBtn {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -62,7 +65,7 @@
 
   <hr>
   <h2>Documenten</h2>
-  <button onclick="nieuweAankoopkeuring()">Aankoopkeuring nieuw</button>
+  <button id="nieuweDocBtn" onclick="nieuweAankoopkeuring()">Aankoopkeuring nieuw</button>
   <input type="text" id="zoekveld" placeholder="Zoek op naam, type of status..." oninput="laadDocumenten()">
   <div id="documentenContainer"></div>
 
@@ -79,7 +82,6 @@
       localStorage.setItem('actieveKlantId', klantId);
 
       laadKlantgegevens();
-      laadDocumenten();
     };
 
     function laadKlantgegevens() {
@@ -88,6 +90,14 @@
       for (const veld in data) {
         const el = document.getElementById(veld);
         if (el) el.value = data[veld];
+      }
+
+      // toon documenten alleen als klantgegevens bestaan
+      if (data.naam || data.email || data.adres) {
+        document.getElementById("documentenContainer").style.display = "block";
+        document.getElementById("zoekveld").style.display = "block";
+        document.getElementById("nieuweDocBtn").style.display = "inline-block";
+        laadDocumenten();
       }
     }
 
@@ -100,6 +110,9 @@
       });
       localStorage.setItem(klantKey, JSON.stringify(data));
       alert('Klantgegevens opgeslagen');
+      document.getElementById("documentenContainer").style.display = "block";
+      document.getElementById("zoekveld").style.display = "block";
+      document.getElementById("nieuweDocBtn").style.display = "inline-block";
       laadDocumenten();
     }
 
