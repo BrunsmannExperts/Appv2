@@ -71,6 +71,20 @@
   <div id="documentenContainer"></div>
 
   <script>
+    let klantId = null;
+
+    window.onload = function() {
+      if (!localStorage.getItem('ingelogdeGebruiker')) {
+        console.warn("Geen ingelogde gebruiker gevonden – login wordt later afgedwongen.");
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      klantId = urlParams.get('id') || localStorage.getItem('actieveKlantId') || 'nieuw';
+      localStorage.setItem('actieveKlantId', klantId);
+
+      laadKlantgegevens();
+    };
+
     function toggleBewerken() {
       const velden = document.querySelectorAll('#klantForm input');
       const aanpassen = document.getElementById('bewerkBtn');
@@ -87,20 +101,6 @@
       document.getElementById('opslaanBtn').style.display = 'none';
     }
 
-    let klantId = null;
-
-    window.onload = function() {
-      if (!localStorage.getItem('ingelogdeGebruiker')) {
-        console.warn("Geen ingelogde gebruiker gevonden – login wordt later afgedwongen.");
-      }
-
-      const urlParams = new URLSearchParams(window.location.search);
-      klantId = urlParams.get('id') || localStorage.getItem('actieveKlantId') || 'nieuw';
-      localStorage.setItem('actieveKlantId', klantId);
-
-      laadKlantgegevens();
-    };
-
     function laadKlantgegevens() {
       const klantKey = 'klantdata_' + klantId;
       const data = JSON.parse(localStorage.getItem(klantKey) || '{}');
@@ -109,7 +109,6 @@
         if (el) el.value = data[veld];
       }
 
-      // toon documenten alleen als klantgegevens bestaan
       if (data.naam || data.email || data.adres) {
         document.getElementById("documentenContainer").style.display = "block";
         document.getElementById("zoekveld").style.display = "block";

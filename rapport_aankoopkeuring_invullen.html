@@ -19,6 +19,7 @@
 </head>
 <body>
   <h1>Rapport invullen – Aankoopkeuring</h1>
+  <button onclick="gaTerug()">← Terug naar klantpagina</button>
   <div id="formContainer"></div>
   <button onclick="opslaan()">Opslaan</button>
   <button onclick="gaNaarExport()">Exporteren als Word</button>
@@ -63,6 +64,13 @@
       window.location.href = "rapport_export_word.html?id=" + rapportId;
     }
     window.onload = laadFormulier;
-  </script>
+  
+    function gaTerug() {
+      const klantId = localStorage.getItem('actieveKlantId');
+      if (klantId) {
+        window.location.href = 'klant_detail.html?id=' + klantId;
+      }
+    }
+    </script>
 </body>
 </html>
