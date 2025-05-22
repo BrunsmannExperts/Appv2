@@ -2,53 +2,64 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <title>Rapport Export – Word</title>
-    <meta charset="UTF-8">
-    <style>
-        body { font-family: Arial, sans-serif; padding: 40px; }
-        h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-        section { margin-bottom: 30px; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Export Word – Aankoopkeuring</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 40px; }
+    h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+    .blok { margin-bottom: 30px; }
+    .meta { margin-bottom: 10px; }
+  </style>
 </head>
 <body>
-    <h1>Export – Aankoopkeuring</h1>
-    <button onclick="genereerWord()">Download Word</button>
+  <h1>Aankoopkeuring – Rapport Export</h1>
+  <p class="meta">Let op: export bevat testopmaak, maar is functioneel.</p>
+  <button onclick="genereerWord()">Download Word</button>
 
-    <script>
-        function genereerWord() {
-            const onderdelen = [
-                { id: "romp_toestand", label: "Toestand onderwaterschip" },
-                { id: "romp_materiaal", label: "Materiaal / dikte" },
-                { id: "motor_type", label: "Motortype" },
-                { id: "motor_staat", label: "Algemene staat motor" },
-                { id: "elektra_accus", label: "Accu’s en bedrading" },
-                { id: "gas_leidingen", label: "Gassysteem leidingen" },
-                { id: "navigatie_apparatuur", label: "Navigatie apparatuur" },
-                { id: "toilet_systeem", label: "Toilet systeem" },
-                { id: "stuur_type", label: "Staat stuurinrichting" },
-                { id: "veiligheid_middelen", label: "Veiligheidsmiddelen" }
-            ];
+  <script>
+    function genereerWord() {
+      const klantId = localStorage.getItem('actieveKlantId') || 'nieuw';
+      const klantData = JSON.parse(localStorage.getItem('klantdata_' + klantId) || '{}');
 
-            let html = "<html><head><meta charset='utf-8'><title>Rapport</title></head><body>";
-            html += "<h1>Rapport Aankoopkeuring</h1>";
+      const onderdelen = [
+        { id: "romp_toestand", label: "Toestand onderwaterschip" },
+        { id: "romp_materiaal", label: "Materiaal / dikte" },
+        { id: "motor_type", label: "Motortype" },
+        { id: "motor_staat", label: "Algemene staat motor" },
+        { id: "elektra_accus", label: "Accu’s en bedrading" },
+        { id: "gas_leidingen", label: "Gassysteem leidingen" },
+        { id: "navigatie_apparatuur", label: "Navigatie apparatuur" },
+        { id: "toilet_systeem", label: "Toilet systeem" },
+        { id: "stuur_type", label: "Staat stuurinrichting" },
+        { id: "veiligheid_middelen", label: "Veiligheidsmiddelen" }
+      ];
 
-            onderdelen.forEach(o => {
-                const waarde = localStorage.getItem(o.id) || "(niet ingevuld)";
-                html += `<h2>${o.label}</h2><p>${waarde}</p>`;
-            });
+      let html = "<html><head><meta charset='utf-8'><title>Rapport</title></head><body>";
+      html += "<h1 style='text-align:center;'>Brunsmann Experts</h1>";
+      html += "<h2>Voorblad</h2>";
+      html += "<p><strong>Klant:</strong> " + (klantData.naam || '–') + "<br>";
+      html += "<strong>Adres:</strong> " + (klantData.adres || '') + ", " + (klantData.postcode || '') + " " + (klantData.woonplaats || '') + "<br>";
+      html += "<strong>Telefoon:</strong> " + (klantData.telefoon || '') + "<br>";
+      html += "<strong>E-mail:</strong> " + (klantData.email || '') + "</p>";
+      html += "<hr>";
 
-            html += "</body></html>";
+      onderdelen.forEach(o => {
+        const waarde = localStorage.getItem(o.id) || "(niet ingevuld)";
+        html += "<div class='blok'><h2>" + o.label + "</h2><p>" + waarde + "</p></div>";
+      });
 
-            const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = "rapport_aankoopkeuring.doc";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    </script>
+      html += "<footer style='position:fixed;bottom:40px;width:100%;text-align:center;'>Pagina – <span class='pagenum'></span></footer>";
+      html += "</body></html>";
+
+      const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "rapport_aankoopkeuring.doc";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
 </body>
 </html>

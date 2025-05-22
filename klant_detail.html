@@ -67,6 +67,21 @@
   </style>
 </head>
 <body>
+
+<script>
+  // Logincheck
+  if (!localStorage.getItem('ingelogdeGebruiker')) {
+      window.location.href = "login.html";
+  }
+
+  // Haal klant-ID uit URL en sla op
+  const urlParams = new URLSearchParams(window.location.search);
+  const klantId = urlParams.get('id');
+  if (klantId) {
+      localStorage.setItem('actieveKlantId', klantId);
+  }
+</script>
+
   <div class="container">
     <div class="sidebar">
       <h2>📋 Menu</h2>
@@ -263,96 +278,5 @@
       toonDocumenten();
     }
   </script>
-
-<section>
-  <h2>Klantgegevens</h2>
-  <form id="klantForm">
-    <label for="naam">Naam:</label>
-    <input type="text" id="naam"><br>
-    <label for="adres">Adres:</label>
-    <input type="text" id="adres"><br>
-    <label for="postcode">Postcode:</label>
-    <input type="text" id="postcode"><br>
-    <label for="woonplaats">Woonplaats:</label>
-    <input type="text" id="woonplaats"><br>
-    <label for="telefoon">Telefoonnummer:</label>
-    <input type="tel" id="telefoon"><br>
-    <label for="email">E-mailadres:</label>
-    <input type="email" id="email"><br>
-    <button type="button" onclick="opslaanKlant()">Opslaan klantgegevens</button>
-  </form>
-</section>
-
-<section>
-  <h2>Documenten</h2>
-  <button onclick="nieuweAankoopkeuring()">Aankoopkeuring nieuw</button>
-  <div id="documentenContainer"></div>
-</section>
-
-<script>
-  const klantId = localStorage.getItem('actieveKlantId') || 'nieuw';
-  const documentenKey = 'documenten_' + klantId;
-  const klantKey = 'klantdata_' + klantId;
-
-  function laadKlantgegevens() {
-    const data = JSON.parse(localStorage.getItem(klantKey) || '{}');
-    for (const veld in data) {
-      const el = document.getElementById(veld);
-      if (el) el.value = data[veld];
-    }
-  }
-
-  function opslaanKlant() {
-    const velden = ['naam', 'adres', 'postcode', 'woonplaats', 'telefoon', 'email'];
-    const data = {};
-    velden.forEach(v => {
-      data[v] = document.getElementById(v).value;
-    });
-    localStorage.setItem(klantKey, JSON.stringify(data));
-    alert('Klantgegevens opgeslagen');
-  }
-
-  function laadDocumenten() {
-    const container = document.getElementById('documentenContainer');
-    container.innerHTML = '';
-    const docs = JSON.parse(localStorage.getItem(documentenKey) || '[]');
-    docs.forEach((doc, index) => {
-      const div = document.createElement('div');
-      div.className = 'documentblok';
-      div.innerHTML = `
-        <span>${doc.type} – ${doc.status} (${doc.datum})</span>
-        <a href="rapport_aankoopkeuring_invullen.html?id=${doc.id}" target="_blank">Openen</a>
-        <button onclick="verwijderDocument(${index})">Verwijderen</button>
-      `;
-      container.appendChild(div);
-    });
-  }
-
-  function nieuweAankoopkeuring() {
-    const docs = JSON.parse(localStorage.getItem(documentenKey) || '[]');
-    const nieuwId = 'rapport_' + Date.now();
-    docs.push({
-      id: nieuwId,
-      type: 'Aankoopkeuring',
-      status: 'concept',
-      datum: new Date().toLocaleDateString()
-    });
-    localStorage.setItem(documentenKey, JSON.stringify(docs));
-    laadDocumenten();
-  }
-
-  function verwijderDocument(index) {
-    const docs = JSON.parse(localStorage.getItem(documentenKey) || '[]');
-    docs.splice(index, 1);
-    localStorage.setItem(documentenKey, JSON.stringify(docs));
-    laadDocumenten();
-  }
-
-  window.onload = function() {
-    laadKlantgegevens();
-    laadDocumenten();
-  };
-</script>
-
 </body>
 </html>

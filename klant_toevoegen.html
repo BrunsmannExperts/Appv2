@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Nieuwe klant toevoegen</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 40px; }
+    input[type="text"] {
+      width: 100%; padding: 10px; margin: 10px 0;
+      border: 1px solid #ccc; border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px; background-color: #0057b8;
+      color: white; border: none; border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    // Logincheck
+    if (!localStorage.getItem('ingelogdeGebruiker')) {
+        window.location.href = "login.html";
+    }
+  </script>
+
+  <h1>Nieuwe klant toevoegen</h1>
+
+  <label for="klantId">Klantnummer (bijv. klant_4250):</label>
+  <input type="text" id="klantId" placeholder="klant_">
+
+  <button onclick="maakNieuweKlant()">Ga naar klantpagina</button>
+
+  <script>
+    function maakNieuweKlant() {
+      let id = document.getElementById('klantId').value.trim();
+      if (!id.startsWith('klant_')) {
+        alert("Gebruik een ID dat begint met 'klant_'");
+        return;
+      }
+      localStorage.setItem('actieveKlantId', id);
+      window.location.href = "klant_detail.html?id=" + id;
+    }
+  </script>
+</body>
+</html>
