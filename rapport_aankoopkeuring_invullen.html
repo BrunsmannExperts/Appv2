@@ -1,107 +1,68 @@
-
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <title>Aankoopkeuring Invullen</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        h2 { border-bottom: 2px solid #ccc; padding-bottom: 5px; }
-        .hoofdstuk { margin-bottom: 40px; }
-        textarea, input[type="text"] {
-            width: 100%; padding: 10px; margin-top: 5px;
-            border: 1px solid #ccc; border-radius: 5px;
-        }
-        button {
-            padding: 10px 20px; border: none; border-radius: 5px;
-            background-color: #0057b8; color: white; cursor: pointer;
-            margin-right: 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Rapport invullen – Aankoopkeuring</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h2 { border-bottom: 1px solid #ccc; margin-top: 30px; }
+    textarea, input[type="text"] {
+      width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 20px;
+      border: 1px solid #ccc; border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px; border: none; border-radius: 5px;
+      background-color: #0057b8; color: white; cursor: pointer;
+      margin-right: 10px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Aankoopkeuring – Rapport Invullen</h1>
-
-    <div class="hoofdstuk" id="romp">
-        <h2>Romp</h2>
-        <label>Toestand onderwaterschip:</label>
-        <textarea id="romp_toestand"></textarea>
-        <label>Materiaal / dikte:</label>
-        <input type="text" id="romp_materiaal">
-    </div>
-
-    <div class="hoofdstuk" id="motor">
-        <h2>Motor</h2>
-        <label>Motortype:</label>
-        <input type="text" id="motor_type">
-        <label>Algemene staat:</label>
-        <textarea id="motor_staat"></textarea>
-    </div>
-
-    <div class="hoofdstuk" id="elektra">
-        <h2>Elektra</h2>
-        <label>Accu’s en bedrading:</label>
-        <textarea id="elektra_accus"></textarea>
-    </div>
-
-    <div class="hoofdstuk" id="gas">
-        <h2>Gassysteem</h2>
-        <label>Leidingen en aansluiting:</label>
-        <textarea id="gas_leidingen"></textarea>
-    </div>
-
-    <div class="hoofdstuk" id="navigatie">
-        <h2>Navigatie</h2>
-        <label>Apparatuur:</label>
-        <textarea id="navigatie_apparatuur"></textarea>
-    </div>
-
-    <div class="hoofdstuk" id="toilet">
-        <h2>Toilet</h2>
-        <label>Systeem en aansluiting:</label>
-        <textarea id="toilet_systeem"></textarea>
-    </div>
-
-    <div class="hoofdstuk" id="stuurinrichting">
-        <h2>Stuurinrichting</h2>
-        <label>Staat en type:</label>
-        <textarea id="stuur_type"></textarea>
-    </div>
-
-    <div class="hoofdstuk" id="veiligheid">
-        <h2>Veiligheid</h2>
-        <label>Brandblussers / reddingsmiddelen:</label>
-        <textarea id="veiligheid_middelen"></textarea>
-    </div>
-
-    <div>
-        <button onclick="opslaan()">Opslaan</button>
-        <button onclick="exporteer()">Exporteren als Word</button>
-    </div>
-
-    <script>
-        function opslaan() {
-            const velden = document.querySelectorAll("textarea, input[type='text']");
-            velden.forEach(veld => {
-                localStorage.setItem(veld.id, veld.value);
-            });
-            alert("Ingevulde gegevens zijn opgeslagen.");
-        }
-
-        function laden() {
-            const velden = document.querySelectorAll("textarea, input[type='text']");
-            velden.forEach(veld => {
-                const opgeslagen = localStorage.getItem(veld.id);
-                if (opgeslagen) veld.value = opgeslagen;
-            });
-        }
-
-        function exporteer() {
-            alert("Exportfunctie wordt later gekoppeld aan Word-generator.");
-        }
-
-        window.onload = laden;
-    </script>
+  <h1>Rapport invullen – Aankoopkeuring</h1>
+  <div id="formContainer"></div>
+  <button onclick="opslaan()">Opslaan</button>
+  <button onclick="gaNaarExport()">Exporteren als Word</button>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const rapportId = urlParams.get('id');
+    const storageKey = 'rapportdata_' + rapportId;
+    const velden = [
+      { id: "romp_toestand", label: "Toestand onderwaterschip" },
+      { id: "romp_materiaal", label: "Materiaal / dikte" },
+      { id: "motor_type", label: "Motortype" },
+      { id: "motor_staat", label: "Algemene staat motor" },
+      { id: "elektra_accus", label: "Accu’s en bedrading" },
+      { id: "gas_leidingen", label: "Gassysteem leidingen" },
+      { id: "navigatie_apparatuur", label: "Navigatie apparatuur" },
+      { id: "toilet_systeem", label: "Toilet systeem" },
+      { id: "stuur_type", label: "Staat stuurinrichting" },
+      { id: "veiligheid_middelen", label: "Veiligheidsmiddelen" }
+    ];
+    function laadFormulier() {
+      const container = document.getElementById("formContainer");
+      const data = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      container.innerHTML = '';
+      velden.forEach(v => {
+        const el = document.createElement("div");
+        el.innerHTML = `<h2>${v.label}</h2>` +
+          (v.id.includes("materiaal") || v.id.includes("type") ?
+          `<input type="text" id="${v.id}" value="${data[v.id] || ''}">` :
+          `<textarea id="${v.id}">${data[v.id] || ''}</textarea>`);
+        container.appendChild(el);
+      });
+    }
+    function opslaan() {
+      const data = {};
+      velden.forEach(v => {
+        data[v.id] = document.getElementById(v.id).value;
+      });
+      localStorage.setItem(storageKey, JSON.stringify(data));
+      alert("Opgeslagen");
+    }
+    function gaNaarExport() {
+      window.location.href = "rapport_export_word.html?id=" + rapportId;
+    }
+    window.onload = laadFormulier;
+  </script>
 </body>
 </html>
