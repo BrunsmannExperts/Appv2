@@ -39,6 +39,7 @@
         alert("Gebruik een ID dat begint met 'klant_'");
         return;
       }
+      localStorage.setItem('ingelogdeGebruiker', 'Testgebruiker');
       localStorage.setItem('actieveKlantId', id);
       window.location.href = "klant_detail.html?id=" + id;
     }
