@@ -1,137 +1,66 @@
-
 <!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Klanten – Brunsmann Experts</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Klantenoverzicht – Brunsmann Experts</title>
+  <script src="sidebar_loader.js" defer></script>
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      background: #eef2f5;
-      color: #222;
+    body { font-family: Arial, sans-serif; padding: 20px; margin-left: 220px; }
+    .klantblok {
+      border: 1px solid #ccc; padding: 15px; border-radius: 10px;
+      margin-bottom: 15px;
     }
-    .container {
-      display: flex;
-      height: 100vh;
+    .klantblok span {
+      display: block; font-weight: bold; margin-bottom: 8px;
     }
-    .sidebar {
-      width: 220px;
-      background: #003366;
-      color: white;
-      padding: 1.5em;
-      box-sizing: border-box;
-    }
-    .sidebar h2 {
-      font-size: 1.2em;
-      margin-bottom: 1em;
-    }
-    .sidebar a {
-      display: block;
-      width: 100%;
-      background: none;
-      color: white;
-      text-decoration: none;
-      padding: 0.6em 0;
-      font-size: 1em;
-    }
-    .sidebar a:hover {
-      background-color: #005199;
-    }
-    .main {
-      flex-grow: 1;
-      padding: 2em;
-      overflow-y: auto;
-    }
-    .userlabel {
-      font-size: 0.9em;
-      color: #666;
-      margin-bottom: 1em;
-    }
-    input, button {
-      padding: 0.6em;
-      margin: 0.5em 0.5em 0.5em 0;
-      font-size: 1em;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    .klantkaart {
-      background: white;
-      border-radius: 8px;
-      padding: 1em;
-      margin-bottom: 1em;
-      box-shadow: 0 0 5px rgba(0,0,0,0.05);
-    }
-    .knop {
-      background-color: #003366;
-      color: white;
-      padding: 0.6em 1.2em;
-      border: none;
-      border-radius: 6px;
+    .klantblok button {
+      padding: 8px 12px; background-color: #0057b8; color: white;
+      border: none; border-radius: 5px; margin-right: 5px;
       cursor: pointer;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 1em;
-    }
-    .knop:hover {
-      background-color: #005199;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="sidebar">
-      <h2>📋 Dashboard</h2>
-      <a href="dashboard.html">🏠 Dashboard</a>
-      <a href="klanten_overzicht.html">👥 Klanten</a>
-      <a href="klant_detail.html">➕ Nieuwe klant</a>
-      <a href="instellingen.html">⚙️ Instellingen</a>
-      <a href="documentatie.html">📘 Documentatie</a>
-      <a href="index.html">🚪 Uitloggen</a>
-    </div>
-    <div class="main">
-      <div class="userlabel">Ingelogd als: <span id="gebruikersnaam"></span></div>
-      <h1>Klantenoverzicht</h1>
-      <a class="knop" href="klant_detail.html">➕ Nieuwe klant</a><br><br>
-      <input type="text" id="zoeknaam" placeholder="Zoek op naam">
-      <input type="text" id="zoeknummer" placeholder="Zoek op klantnummer">
-      <button onclick="toonKlanten()">🔍 Filter</button>
-      <div id="klantenlijst" style="margin-top:2em;"></div>
-    </div>
-  </div>
+  <h1>Klantenoverzicht</h1>
+  <button onclick="window.location.href='klant_toevoegen.html'">Nieuwe klant toevoegen</button>
+  <div id="klantenContainer"></div>
 
   <script>
-    document.getElementById("gebruikersnaam").textContent = localStorage.getItem("gebruiker") || "gebruiker";
+    window.onload = function () {
+      if (!localStorage.getItem('ingelogdeGebruiker')) {
+        console.warn("Geen ingelogde gebruiker – login wordt later afgedwongen.");
+      }
 
-    function toonKlanten() {
-      const zoeknaam = document.getElementById("zoeknaam").value.toLowerCase();
-      const zoeknummer = document.getElementById("zoeknummer").value;
-      const klanten = JSON.parse(localStorage.getItem("klanten") || "[]");
-      const container = document.getElementById("klantenlijst");
-      container.innerHTML = "";
-
-      klanten
-        .filter(k =>
-          (!zoeknaam || k.naam.toLowerCase().includes(zoeknaam)) &&
-          (!zoeknummer || k.klantnummer.toString().includes(zoeknummer))
-        )
-        .sort((a, b) => b.klantnummer - a.klantnummer)
-        .forEach(k => {
-          const div = document.createElement("div");
-          div.className = "klantkaart";
-          div.innerHTML = `<strong>${k.naam}</strong><br>Klantnummer: ${k.klantnummer}<br>
-                           <button class="knop" onclick="openKlant(${k.klantnummer})">📂 Open</button>`;
+      const container = document.getElementById('klantenContainer');
+      container.innerHTML = '';
+      for (let key in localStorage) {
+        if (key.startsWith('klantdata_')) {
+          const klant = JSON.parse(localStorage.getItem(key));
+          const klantId = key.replace('klantdata_', '');
+          const div = document.createElement('div');
+          div.className = 'klantblok';
+          div.innerHTML = `
+            <span>${klantId} – ${klant.naam || '(Naam onbekend)'}</span>
+            <button onclick="openKlant('${klantId}')">Openen</button>
+            <button onclick="verwijderKlant('${klantId}')">Verwijderen</button>
+          `;
           container.appendChild(div);
-        });
+        }
+      }
     }
 
-    function openKlant(klantnummer) {
-      localStorage.setItem("actieve_klant", klantnummer);
-      window.location.href = "klant_detail.html";
+    function openKlant(id) {
+      localStorage.setItem('actieveKlantId', id);
+      window.location.href = 'klant_detail.html?id=' + id;
     }
 
-    window.onload = toonKlanten;
+    function verwijderKlant(id) {
+      if (confirm('Weet je zeker dat je klant ' + id + ' wilt verwijderen?')) {
+        localStorage.removeItem('klantdata_' + id);
+        localStorage.removeItem('documenten_' + id);
+        location.reload();
+      }
+    }
   </script>
 </body>
 </html>

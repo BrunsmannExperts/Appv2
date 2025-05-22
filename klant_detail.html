@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <title>Klantdetail – Brunsmann Experts</title>
   <link rel="stylesheet" href="style.css">
+  <script src="sidebar_loader.js" defer></script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
+    body { font-family: Arial, sans-serif; padding: 20px; margin-left: 220px; }
     input[type="text"], input[type="email"], input[type="tel"] {
       width: 100%; padding: 8px; margin-bottom: 10px;
       border: 1px solid #ccc; border-radius: 5px;
@@ -16,10 +17,20 @@
       margin-bottom: 15px;
     }
     .documentblok span {
-      display: block; font-weight: bold; margin-bottom: 8px;
+      display: block; font-weight: bold; margin-bottom: 6px;
     }
-    .documentblok a, .documentblok button {
-      padding: 8px 12px; background-color: #0057b8; color: white;
+    .documentblok .meta {
+      font-size: 0.9em; color: #555; margin-bottom: 8px;
+    }
+    .documentblok .badge {
+      display: inline-block; padding: 2px 6px;
+      border-radius: 5px; color: white; font-size: 0.8em;
+    }
+    .type-rapport { background-color: #007bff; }
+    .type-factuur { background-color: #28a745; }
+    .type-offerte { background-color: #ffc107; color: #000; }
+    .documentblok button, .documentblok a {
+      padding: 6px 10px; background-color: #0057b8; color: white;
       text-decoration: none; border: none; border-radius: 5px;
       margin-right: 5px; cursor: pointer;
     }
@@ -52,16 +63,19 @@
   <hr>
   <h2>Documenten</h2>
   <button onclick="nieuweAankoopkeuring()">Aankoopkeuring nieuw</button>
+  <input type="text" id="zoekveld" placeholder="Zoek op naam, type of status..." oninput="laadDocumenten()">
   <div id="documentenContainer"></div>
 
   <script>
+    let klantId = null;
+
     window.onload = function() {
       if (!localStorage.getItem('ingelogdeGebruiker')) {
         console.warn("Geen ingelogde gebruiker gevonden – login wordt later afgedwongen.");
       }
 
       const urlParams = new URLSearchParams(window.location.search);
-      const klantId = urlParams.get('id') || localStorage.getItem('actieveKlantId') || 'nieuw';
+      klantId = urlParams.get('id') || localStorage.getItem('actieveKlantId') || 'nieuw';
       localStorage.setItem('actieveKlantId', klantId);
 
       laadKlantgegevens();
@@ -69,7 +83,6 @@
     };
 
     function laadKlantgegevens() {
-      const klantId = localStorage.getItem('actieveKlantId') || 'nieuw';
       const klantKey = 'klantdata_' + klantId;
       const data = JSON.parse(localStorage.getItem(klantKey) || '{}');
       for (const veld in data) {
@@ -79,7 +92,6 @@
     }
 
     function opslaanKlant() {
-      const klantId = localStorage.getItem('actieveKlantId') || 'nieuw';
       const klantKey = 'klantdata_' + klantId;
       const velden = ['naam', 'adres', 'postcode', 'woonplaats', 'telefoon', 'email'];
       const data = {};
@@ -88,43 +100,54 @@
       });
       localStorage.setItem(klantKey, JSON.stringify(data));
       alert('Klantgegevens opgeslagen');
+      laadDocumenten();
     }
 
     function laadDocumenten() {
-      const klantId = localStorage.getItem('actieveKlantId') || 'nieuw';
+      const zoekterm = document.getElementById('zoekveld').value.toLowerCase();
       const documentenKey = 'documenten_' + klantId;
       const container = document.getElementById('documentenContainer');
       container.innerHTML = '';
       const docs = JSON.parse(localStorage.getItem(documentenKey) || '[]');
-      docs.forEach((doc, index) => {
-        const div = document.createElement('div');
-        div.className = 'documentblok';
-        div.innerHTML = `
-          <span>${doc.type} – ${doc.status} (${doc.datum})</span>
-          <a href="rapport_aankoopkeuring_invullen.html?id=${doc.id}" target="_blank">Openen</a>
-          <button onclick="verwijderDocument(${index})">Verwijderen</button>
-        `;
-        container.appendChild(div);
-      });
+
+      docs
+        .filter(doc =>
+          !zoekterm ||
+          doc.type.toLowerCase().includes(zoekterm) ||
+          doc.status.toLowerCase().includes(zoekterm) ||
+          (doc.naam && doc.naam.toLowerCase().includes(zoekterm))
+        )
+        .forEach((doc, index) => {
+          const div = document.createElement('div');
+          div.className = 'documentblok';
+          const typeClass = 'type-' + doc.type.toLowerCase();
+          div.innerHTML = `
+            <span>${doc.naam || 'Naamloos document'} <span class="badge ${typeClass}">${doc.type}</span></span>
+            <div class="meta">Aangemaakt op: ${doc.datum || 'onbekend'} • Status: ${doc.status}</div>
+            <a href="rapport_aankoopkeuring_invullen.html?id=${doc.id}" target="_blank">Openen</a>
+            <button onclick="verwijderDocument(${index})">Verwijderen</button>
+          `;
+          container.appendChild(div);
+        });
     }
 
     function nieuweAankoopkeuring() {
-      const klantId = localStorage.getItem('actieveKlantId') || 'nieuw';
       const documentenKey = 'documenten_' + klantId;
       const docs = JSON.parse(localStorage.getItem(documentenKey) || '[]');
       const nieuwId = 'rapport_' + Date.now();
       docs.push({
         id: nieuwId,
-        type: 'Aankoopkeuring',
+        type: 'rapport',
+        naam: 'Aankoopkeuring',
         status: 'concept',
-        datum: new Date().toLocaleDateString()
+        datum: new Date().toLocaleDateString(),
+        gewijzigd: new Date().toLocaleDateString()
       });
       localStorage.setItem(documentenKey, JSON.stringify(docs));
       laadDocumenten();
     }
 
     function verwijderDocument(index) {
-      const klantId = localStorage.getItem('actieveKlantId') || 'nieuw';
       const documentenKey = 'documenten_' + klantId;
       let docs = JSON.parse(localStorage.getItem(documentenKey) || '[]');
       docs.splice(index, 1);

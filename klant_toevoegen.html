@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Nieuwe klant toevoegen</title>
+  <script src="sidebar_loader.js" defer></script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 40px; }
+    body { font-family: Arial, sans-serif; padding: 40px; margin-left: 220px; }
     input[type="text"] {
       width: 100%; padding: 10px; margin: 10px 0;
       border: 1px solid #ccc; border-radius: 5px;
@@ -27,7 +28,7 @@
   <script>
     window.onload = function() {
       if (!localStorage.getItem('ingelogdeGebruiker')) {
-          console.warn("Geen ingelogde gebruiker gevonden – login wordt later afgedwongen.");
+        console.warn("Geen ingelogde gebruiker gevonden – login wordt later afgedwongen.");
       }
     };
 
