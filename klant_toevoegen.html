@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -18,13 +17,6 @@
   </style>
 </head>
 <body>
-  <script>
-    // Logincheck
-    if (!localStorage.getItem('ingelogdeGebruiker')) {
-        window.location.href = "login.html";
-    }
-  </script>
-
   <h1>Nieuwe klant toevoegen</h1>
 
   <label for="klantId">Klantnummer (bijv. klant_4250):</label>
@@ -33,6 +25,12 @@
   <button onclick="maakNieuweKlant()">Ga naar klantpagina</button>
 
   <script>
+    window.onload = function() {
+      if (!localStorage.getItem('ingelogdeGebruiker')) {
+          console.warn("Geen ingelogde gebruiker gevonden – login wordt later afgedwongen.");
+      }
+    };
+
     function maakNieuweKlant() {
       let id = document.getElementById('klantId').value.trim();
       if (!id.startsWith('klant_')) {

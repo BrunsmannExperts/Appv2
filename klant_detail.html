@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -27,17 +26,6 @@
   </style>
 </head>
 <body>
-  <script>
-    if (!localStorage.getItem('ingelogdeGebruiker')) {
-      window.location.href = "login.html";
-    }
-    const urlParams = new URLSearchParams(window.location.search);
-    const klantId = urlParams.get('id') || localStorage.getItem('actieveKlantId') || 'nieuw';
-    localStorage.setItem('actieveKlantId', klantId);
-    const documentenKey = 'documenten_' + klantId;
-    const klantKey = 'klantdata_' + klantId;
-  </script>
-
   <h1>Klantgegevens</h1>
   <form id="klantForm">
     <label for="naam">Naam:</label>
@@ -67,7 +55,22 @@
   <div id="documentenContainer"></div>
 
   <script>
+    window.onload = function() {
+      if (!localStorage.getItem('ingelogdeGebruiker')) {
+        console.warn("Geen ingelogde gebruiker gevonden – login wordt later afgedwongen.");
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const klantId = urlParams.get('id') || localStorage.getItem('actieveKlantId') || 'nieuw';
+      localStorage.setItem('actieveKlantId', klantId);
+
+      laadKlantgegevens();
+      laadDocumenten();
+    };
+
     function laadKlantgegevens() {
+      const klantId = localStorage.getItem('actieveKlantId') || 'nieuw';
+      const klantKey = 'klantdata_' + klantId;
       const data = JSON.parse(localStorage.getItem(klantKey) || '{}');
       for (const veld in data) {
         const el = document.getElementById(veld);
@@ -76,6 +79,8 @@
     }
 
     function opslaanKlant() {
+      const klantId = localStorage.getItem('actieveKlantId') || 'nieuw';
+      const klantKey = 'klantdata_' + klantId;
       const velden = ['naam', 'adres', 'postcode', 'woonplaats', 'telefoon', 'email'];
       const data = {};
       velden.forEach(v => {
@@ -86,6 +91,8 @@
     }
 
     function laadDocumenten() {
+      const klantId = localStorage.getItem('actieveKlantId') || 'nieuw';
+      const documentenKey = 'documenten_' + klantId;
       const container = document.getElementById('documentenContainer');
       container.innerHTML = '';
       const docs = JSON.parse(localStorage.getItem(documentenKey) || '[]');
@@ -102,6 +109,8 @@
     }
 
     function nieuweAankoopkeuring() {
+      const klantId = localStorage.getItem('actieveKlantId') || 'nieuw';
+      const documentenKey = 'documenten_' + klantId;
       const docs = JSON.parse(localStorage.getItem(documentenKey) || '[]');
       const nieuwId = 'rapport_' + Date.now();
       docs.push({
@@ -115,16 +124,13 @@
     }
 
     function verwijderDocument(index) {
+      const klantId = localStorage.getItem('actieveKlantId') || 'nieuw';
+      const documentenKey = 'documenten_' + klantId;
       let docs = JSON.parse(localStorage.getItem(documentenKey) || '[]');
       docs.splice(index, 1);
       localStorage.setItem(documentenKey, JSON.stringify(docs));
       laadDocumenten();
     }
-
-    window.onload = function() {
-      laadKlantgegevens();
-      laadDocumenten();
-    };
   </script>
 </body>
 </html>
