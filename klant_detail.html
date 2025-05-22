@@ -2,38 +2,273 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <title>Klantdetail</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        h1 { margin-bottom: 20px; }
-        .documentblok {
-            border: 1px solid #ccc; padding: 15px; border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        .documentblok span {
-            display: block; font-weight: bold; margin-bottom: 10px;
-        }
-        .documentblok a {
-            padding: 10px 15px; background-color: #0057b8; color: white;
-            text-decoration: none; border-radius: 5px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Klant – Brunsmann Experts</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: sans-serif; margin: 0; background: #eef2f5; color: #222; }
+    .container { display: flex; height: 100vh; }
+    .sidebar {
+      width: 220px;
+      background: #003366;
+      color: white;
+      padding: 1.5em;
+      box-sizing: border-box;
+    }
+    .sidebar h2 { font-size: 1.2em; margin-bottom: 1em; }
+    .sidebar a {
+      display: block;
+      width: 100%;
+      background: none;
+      color: white;
+      text-decoration: none;
+      padding: 0.6em 0;
+      font-size: 1em;
+    }
+    .sidebar a:hover { background-color: #005199; }
+    .main {
+      flex-grow: 1;
+      padding: 2em;
+      background: #f7f9fc;
+      overflow-y: auto;
+    }
+    .userlabel {
+      font-size: 0.9em;
+      color: #666;
+      margin-bottom: 1em;
+    }
+    input {
+      padding: 0.6em;
+      margin: 0.5em 0;
+      font-size: 1em;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .knop {
+      background-color: #003366;
+      color: white;
+      padding: 0.6em 1.2em;
+      border: none;
+      border-radius: 6px;
+      margin: 0.5em 0.5em 0.5em 0;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .knop:hover { background-color: #005199; }
+    .document-card {
+      background: white;
+      padding: 1em;
+      margin-bottom: 1em;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.05);
+    }
+  </style>
 </head>
 <body>
-    <h1>Klant: Jansen Watersport</h1>
-
-    <h2>Documenten</h2>
-
-    <div class="documentblok">
-        <span>Aankoopkeuring – Concept</span>
-        <a href="rapport_aankoopkeuring_invullen.html">Openen</a>
+  <div class="container">
+    <div class="sidebar">
+      <h2>📋 Menu</h2>
+      <a href="dashboard.html">🏠 Dashboard</a>
+      <a href="klanten_overzicht.html">👥 Klanten</a>
+      <a href="instellingen.html">⚙️ Instellingen</a>
+      <a href="index.html">🚪 Uitloggen</a>
     </div>
+    <div class="main">
+      <div class="userlabel">Ingelogd als: <span id="gebruikersnaam">...</span></div>
+      <h1>Klantgegevens</h1>
+      <div>
+        <input type="text" id="klantnummer" placeholder="Klantnummer (leeg = automatisch)">
+        <input type="text" id="naam" placeholder="Naam">
+        <input type="text" id="email" placeholder="E-mailadres">
+        <input type="text" id="telefoon" placeholder="Telefoonnummer">
+        <input type="text" id="adres" placeholder="Adres">
+        <input type="text" id="postcode" placeholder="Postcode">
+        <input type="text" id="woonplaats" placeholder="Woonplaats">
+        <input type="text" id="land" placeholder="Land">
+        <button class="knop" onclick="opslaan()">💾 Opslaan</button>
+      </div>
 
-    <div class="documentblok">
-        <span>Nieuw document toevoegen</span>
-        <a href="rapport_aankoopkeuring_invullen.html">Aankoopkeuring nieuw</a>
+      <h2>📁 Documenten</h2>
+      <div id="documentenlijst"></div>
+
+      <h2>➕ Nieuwe documenten</h2>
+      <button class="knop" onclick="nieuw('aankoopkeuring')">📋 Aankoopkeuring</button>
+      <button class="knop" onclick="nieuw('taxatie')">📐 Taxatie</button>
+      <button class="knop" onclick="nieuw('ce')">🏷️ CE</button>
+      <button class="knop" onclick="nieuw('offerte')">📄 Offerte</button>
+      <button class="knop" onclick="nieuw('factuur')">🧾 Factuur</button>
     </div>
+  </div>
+
+  
+<style>
+  .document-card {
+    background: white;
+    padding: 1em;
+    margin-bottom: 1em;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.05);
+    border-left: 6px solid #ccc;
+  }
+  .document-card[data-type="aankoopkeuring"] { border-left-color: #003366; }
+  .document-card[data-type="taxatie"] { border-left-color: #336600; }
+  .document-card[data-type="ce"] { border-left-color: #990000; }
+  .document-card[data-type="offerte"] { border-left-color: #cc9900; }
+  .document-card[data-type="factuur"] { border-left-color: #006699; }
+  .docstatus { font-weight: bold; text-transform: uppercase; font-size: 0.85em; margin-top: 0.3em; color: #666; }
+  .docmeta { font-size: 0.85em; color: #777; }
+  .docknoppen button {
+    margin-right: 0.5em;
+    padding: 0.4em 1em;
+    border: none;
+    border-radius: 4px;
+    background: #003366;
+    color: white;
+    cursor: pointer;
+    font-size: 0.9em;
+  }
+  .docknoppen button:hover { background: #005199; }
+</style>
+<script>
+  function toonDocumenten() {
+    const lijst = document.getElementById("documentenlijst");
+    lijst.innerHTML = "";
+    (klant.documenten || []).forEach((d, i) => {
+      const div = document.createElement("div");
+      div.className = "document-card";
+      div.dataset.type = d.type;
+      div.innerHTML = `
+        <strong>${d.naam}</strong>
+        <div class="docstatus">Status: ${d.status || 'Concept'}</div>
+        <div class="docmeta">Aangemaakt: ${d.datum ? new Date(d.datum).toLocaleString() : "-"}</div>
+        <div class="docmeta">Laatst gewijzigd: ${d.laatstGewijzigd ? new Date(d.laatstGewijzigd).toLocaleString() : "-"}</div>
+        <div class="docknoppen">
+          <button onclick="openDocument(${i})">✏️ Openen</button>
+          <button onclick="verwijderDocument(${i})">🗑️ Verwijder</button>
+          <button onclick="exporteerDocument(${i})">⬇️ Download</button>
+        </div>
+      `;
+      lijst.appendChild(div);
+    });
+  }
+
+  function nieuw(type) {
+    const tijd = new Date().toISOString();
+    const doc = {
+      type,
+      naam: "Nieuw " + type,
+      datum: tijd,
+      laatstGewijzigd: tijd,
+      status: "Concept",
+      inhoud: {}
+    };
+    klant.documenten = klant.documenten || [];
+    klant.documenten.push(doc);
+    localStorage.setItem("klanten", JSON.stringify(klanten));
+    toonDocumenten();
+  }
+
+  function openDocument(index) {
+    alert("Openen van document " + klant.documenten[index].naam + " (nog te bouwen)");
+  }
+
+  function exporteerDocument(index) {
+    alert("Download/export van document " + klant.documenten[index].naam + " (nog te bouwen)");
+  }
+
+  function verwijderDocument(index) {
+    if (confirm("Weet je zeker dat je dit document wilt verwijderen?")) {
+      klant.documenten.splice(index, 1);
+      localStorage.setItem("klanten", JSON.stringify(klanten));
+      toonDocumenten();
+    }
+  }
+</script>
+
+<script>
+    document.getElementById("gebruikersnaam").textContent = localStorage.getItem("gebruiker") || "gebruiker";
+
+    const klanten = JSON.parse(localStorage.getItem("klanten") || "[]");
+    const klantnummerInput = document.getElementById("klantnummer");
+    const actieveKlant = localStorage.getItem("actieve_klant");
+    let klant = {};
+
+    if (actieveKlant) {
+      klant = klanten.find(k => k.klantnummer == actieveKlant) || {};
+      klantnummerInput.value = klant.klantnummer;
+      document.getElementById("naam").value = klant.naam || "";
+      document.getElementById("email").value = klant.email || "";
+      document.getElementById("telefoon").value = klant.telefoon || "";
+      document.getElementById("adres").value = klant.adres || "";
+      document.getElementById("postcode").value = klant.postcode || "";
+      document.getElementById("woonplaats").value = klant.woonplaats || "";
+      document.getElementById("land").value = klant.land || "";
+      toonDocumenten();
+    } else {
+      const hoogste = klanten.reduce((max, k) => Math.max(max, k.klantnummer || 0), 0);
+      klantnummerInput.placeholder = "Leeg = automatisch (" + (hoogste + 1) + ")";
+    }
+
+    function opslaan() {
+      const ingevuldNummer = klantnummerInput.value.trim();
+      const gegenereerdNummer = ingevuldNummer ? parseInt(ingevuldNummer) : klanten.reduce((max, k) => Math.max(max, k.klantnummer || 0), 0) + 1;
+
+      if (!actieveKlant && klanten.find(k => k.klantnummer == gegenereerdNummer)) {
+        alert("Let op: klantnummer bestaat al. Kies een ander of laat leeg.");
+        return;
+      }
+
+      const nieuweKlant = {
+        klantnummer: gegenereerdNummer,
+        naam: document.getElementById("naam").value,
+        email: document.getElementById("email").value,
+        telefoon: document.getElementById("telefoon").value,
+        adres: document.getElementById("adres").value,
+        postcode: document.getElementById("postcode").value,
+        woonplaats: document.getElementById("woonplaats").value,
+        land: document.getElementById("land").value,
+        aangemaakt_op: klant.aangemaakt_op || new Date().toISOString(),
+        documenten: klant.documenten || []
+      };
+
+      const index = klanten.findIndex(k => k.klantnummer == nieuweKlant.klantnummer);
+      if (index >= 0) klanten[index] = nieuweKlant;
+      else klanten.push(nieuweKlant);
+
+      localStorage.setItem("klanten", JSON.stringify(klanten));
+      localStorage.setItem("actieve_klant", nieuweKlant.klantnummer);
+      klant = nieuweKlant;
+      alert("Klant opgeslagen!");
+      toonDocumenten();
+    }
+
+    function toonDocumenten() {
+      const lijst = document.getElementById("documentenlijst");
+      lijst.innerHTML = "";
+      (klant.documenten || []).forEach(d => {
+        const div = document.createElement("div");
+        div.className = "document-card";
+        div.textContent = `${d.type.toUpperCase()} – ${d.naam || '(zonder naam)'}`;
+        lijst.appendChild(div);
+      });
+    }
+
+    function nieuw(type) {
+      const doc = { type, naam: `Nieuw ${type}`, datum: new Date().toISOString() };
+      klant.documenten = klant.documenten || [];
+      klant.documenten.push(doc);
+      localStorage.setItem("klanten", JSON.stringify(klanten));
+      toonDocumenten();
+    }
+  </script>
+
+<!-- Toegevoegd: knop voor nieuwe aankoopkeuring -->
+<div class="documentblok">
+    <span>Aankoopkeuring – nieuw document</span>
+    <a href="rapport_aankoopkeuring_invullen.html">Aankoopkeuring nieuw</a>
+</div>
+
 </body>
 </html>
