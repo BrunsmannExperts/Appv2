@@ -5,7 +5,7 @@
   <title>Instellingen – Brunsmann</title>
   <link rel="stylesheet" href="style.css">
   <script src="sidebar_loader.js"></script>
-  <script src="excel_loader.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <div id="sidebar-container"></div>
@@ -20,15 +20,26 @@
             <th>Upload Excel</th>
           </tr>
         </thead>
-        <tbody id="upload-tabel">
-          <tr><td>Motor</td><td><input type="file" id="upload_motor" accept=".xlsx"></td></tr>
-          <tr><td>Romp</td><td><input type="file" id="upload_romp" accept=".xlsx"></td></tr>
-          <tr><td>Elektrisch</td><td><input type="file" id="upload_elektra" accept=".xlsx"></td></tr>
-          <tr><td>Gasinstallatie</td><td><input type="file" id="upload_gas" accept=".xlsx"></td></tr>
-          <tr><td>Veiligheid</td><td><input type="file" id="upload_veiligheid" accept=".xlsx"></td></tr>
+        <tbody>
+          <tr><td>Motor</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_motor_excel')"></td></tr>
+          <tr><td>Romp</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_romp_excel')"></td></tr>
+          <tr><td>Elektrisch</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_elektra_excel')"></td></tr>
+          <tr><td>Gasinstallatie</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_gas_excel')"></td></tr>
+          <tr><td>Veiligheid</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_veiligheid_excel')"></td></tr>
         </tbody>
       </table>
     </section>
   </main>
+  <script>
+    function saveToLocalStorage(input, key) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        localStorage.setItem(key, e.target.result);
+        alert('Bestand opgeslagen in browser voor: ' + key);
+      };
+      reader.readAsDataURL(file);
+    }
+  </script>
 </body>
 </html>
