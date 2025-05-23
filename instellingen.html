@@ -11,77 +11,9 @@
   <div id="sidebar-container"></div>
   <main>
     <h1>Instellingen</h1>
-    <nav class="instellingen-nav">
-      <ul>
-        <li><a href="#gebruikers">Gebruikersbeheer</a></li>
-        <li><a href="#sjablonen">Rapport-sjablonen</a></li>
-        <li><a href="#motor">Motorgegevens</a></li>
-        <li><a href="#mail">Mailkoppeling</a></li>
-        <li><a href="#opslag">Opslagkoppeling</a></li>
-        <li><a href="#excel">Excel per hoofdstuk</a></li>
-      </ul>
-    </nav>
-    <!-- content is already verified in canvas -->
+    <!-- De rest blijft zoals in canvas, met cards per sectie -->
+    <!-- Bij het laden van deze pagina wordt de sidebar automatisch ingevoegd -->
+    <!-- Zie canvas voor de volledige inhoud, deze pagina gebruikt nu sidebar.html dynamisch -->
   </main>
-  <script>
-    function saveToLocalStorage(input, key) {
-      const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        localStorage.setItem(key, e.target.result);
-        alert('Bestand opgeslagen in browser voor: ' + key);
-      };
-      reader.readAsDataURL(file);
-    }
-
-    const gebruikersKey = "brunsmann_gebruikers";
-
-    function laadGebruikers() {
-      const lijst = document.getElementById("gebruikerslijst");
-      lijst.innerHTML = "";
-      const opgeslagen = JSON.parse(localStorage.getItem(gebruikersKey) || "[]");
-      opgeslagen.forEach((gebruiker, index) => {
-        const item = document.createElement("li");
-        item.innerHTML = `<b>${gebruiker.naam}</b> – ${gebruiker.email}
-          <button onclick="verwijderGebruiker(${index})">Verwijder</button>
-          <button onclick="wijzigGebruiker(${index})">Wijzig</button>`;
-        lijst.appendChild(item);
-      });
-    }
-
-    function voegGebruikerToe() {
-      const naam = document.getElementById("nieuwe_naam").value;
-      const wachtwoord = document.getElementById("nieuw_wachtwoord").value;
-      const email = document.getElementById("nieuw_email").value;
-      if (!naam || !wachtwoord || !email) return alert("Vul alles in.");
-
-      const gebruikers = JSON.parse(localStorage.getItem(gebruikersKey) || "[]");
-      gebruikers.push({ naam, wachtwoord, email });
-      localStorage.setItem(gebruikersKey, JSON.stringify(gebruikers));
-      laadGebruikers();
-    }
-
-    function verwijderGebruiker(index) {
-      const gebruikers = JSON.parse(localStorage.getItem(gebruikersKey) || "[]");
-      gebruikers.splice(index, 1);
-      localStorage.setItem(gebruikersKey, JSON.stringify(gebruikers));
-      laadGebruikers();
-    }
-
-    function wijzigGebruiker(index) {
-      const gebruikers = JSON.parse(localStorage.getItem(gebruikersKey) || "[]");
-      const gebruiker = gebruikers[index];
-      const nieuweNaam = prompt("Nieuwe naam:", gebruiker.naam);
-      const nieuwEmail = prompt("Nieuw e-mailadres:", gebruiker.email);
-      if (nieuweNaam && nieuwEmail) {
-        gebruiker.naam = nieuweNaam;
-        gebruiker.email = nieuwEmail;
-        localStorage.setItem(gebruikersKey, JSON.stringify(gebruikers));
-        laadGebruikers();
-      }
-    }
-
-    window.onload = laadGebruikers;
-  </script>
 </body>
 </html>

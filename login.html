@@ -2,33 +2,35 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Login – Brunsmann Experts</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 40px; text-align: center; }
-    input, button {
-      padding: 10px; margin: 10px;
-      border: 1px solid #ccc; border-radius: 5px;
-    }
-    button {
-      background-color: #0057b8; color: white; cursor: pointer;
-    }
-  </style>
+  <title>Inloggen – Brunsmann</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Inloggen Brunsmann Experts</h1>
-  <input type="text" id="gebruikersnaam" placeholder="Gebruikersnaam"><br>
-  <input type="password" id="wachtwoord" placeholder="Wachtwoord"><br>
-  <button onclick="inloggen()">Inloggen</button>
+  <main>
+    <section class="card">
+      <h1>Inloggen</h1>
+      <label>Gebruikersnaam<br><input type="text" id="login_naam"></label><br>
+      <label>Wachtwoord<br><input type="password" id="login_wachtwoord"></label><br>
+      <button onclick="checkLogin()">Inloggen</button>
+      <p id="login_fout" style="color: red;"></p>
+    </section>
+  </main>
 
   <script>
-    function inloggen() {
-      const gebruiker = document.getElementById('gebruikersnaam').value;
-      if (!gebruiker) {
-        alert("Voer een gebruikersnaam in.");
-        return;
+    const gebruikersKey = "brunsmann_gebruikers";
+
+    function checkLogin() {
+      const naam = document.getElementById("login_naam").value;
+      const wachtwoord = document.getElementById("login_wachtwoord").value;
+      const gebruikers = JSON.parse(localStorage.getItem(gebruikersKey) || "[]");
+      const match = gebruikers.find(g => g.naam === naam && g.wachtwoord === wachtwoord);
+
+      if (match) {
+        localStorage.setItem("brunsmann_ingelogd", JSON.stringify(match));
+        window.location.href = "dashboard.html";
+      } else {
+        document.getElementById("login_fout").textContent = "Ongeldige gebruikersnaam of wachtwoord.";
       }
-      localStorage.setItem('ingelogdeGebruiker', gebruiker);
-      window.location.href = "dashboard.html";
     }
   </script>
 </body>
