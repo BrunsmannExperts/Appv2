@@ -22,17 +22,25 @@
       <ul id="gebruikerslijst"></ul>
     </section>
 
-    <!-- Rapport-sjablonen -->
+    <!-- Rapport-sjablonen (rapportopbouw per hoofdstuk) -->
     <section class="card" id="sjablonen">
-      <h2>Upload rapport-sjablonen</h2>
-      <label>Upload aankoopsjabloon Excel: <input type="file"></label><br>
-      <label>Upload taxatiesjabloon Excel: <input type="file"></label>
+      <h2>Rapportonderdelen per hoofdstuk</h2>
+      <table>
+        <thead><tr><th>Hoofdstuk</th><th>Upload Excel</th></tr></thead>
+        <tbody>
+          <tr><td>Motor</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_motor_excel')"></td></tr>
+          <tr><td>Romp</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_romp_excel')"></td></tr>
+          <tr><td>Elektrisch</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_elektra_excel')"></td></tr>
+          <tr><td>Gasinstallatie</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_gas_excel')"></td></tr>
+          <tr><td>Veiligheid</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_veiligheid_excel')"></td></tr>
+        </tbody>
+      </table>
     </section>
 
-    <!-- Motorgegevens -->
+    <!-- Motorgegevens upload -->
     <section class="card" id="motor">
       <h2>Upload motorgegevens</h2>
-      <label>Motortabel (.xlsx): <input type="file"></label>
+      <label>Motorgegevens (.xlsx): <input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'motorgegevens_excel')"></label>
     </section>
 
     <!-- Mailkoppeling -->
@@ -51,23 +59,6 @@
       <h2>Externe opslag koppeling</h2>
       <input type="url" placeholder="API endpoint of opslag-URL">
       <button>Opslaan koppeling</button>
-    </section>
-
-    <!-- Excel hoofdstuk uploads -->
-    <section class="card" id="excel">
-      <h2>Upload rapportonderdelen (Excel per hoofdstuk)</h2>
-      <table>
-        <thead>
-          <tr><th>Hoofdstuk</th><th>Upload Excel</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Motor</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_motor_excel')"></td></tr>
-          <tr><td>Romp</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_romp_excel')"></td></tr>
-          <tr><td>Elektrisch</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_elektra_excel')"></td></tr>
-          <tr><td>Gasinstallatie</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_gas_excel')"></td></tr>
-          <tr><td>Veiligheid</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_veiligheid_excel')"></td></tr>
-        </tbody>
-      </table>
     </section>
   </main>
 

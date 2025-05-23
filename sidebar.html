@@ -1,10 +1,14 @@
-
-<div class="sidebar">
-  <h2>📋 Menu</h2>
-  <a href="dashboard.html">🏠 Dashboard</a>
-  <a href="klanten_overzicht.html">👥 Klanten</a>
-  <a href="klant_detail.html">➕ Nieuwe klant</a>
-  <a href="instellingen.html">⚙️ Instellingen</a>
-  <a href="documentatie.html">📘 Documentatie</a>
-  <a href="index.html">🚪 Uitloggen</a>
-</div>
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h2>Brunsmann</h2>
+  </div>
+  <nav>
+    <ul>
+      <li><a href="dashboard.html">🏠 Dashboard</a></li>
+      <li><a href="klanten_overzicht.html">👥 Klanten</a></li>
+      <li><a href="klant_toevoegen.html">➕ Nieuwe klant</a></li>
+      <li><a href="instellingen.html">⚙️ Instellingen</a></li>
+      <li><a href="login.html" onclick="localStorage.removeItem('brunsmann_ingelogd')">🚪 Uitloggen</a></li>
+    </ul>
+  </nav>
+</aside>
