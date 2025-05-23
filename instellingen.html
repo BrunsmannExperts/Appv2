@@ -9,10 +9,127 @@
 </head>
 <body>
   <div id="sidebar-container"></div>
-
   <main>
     <h1>Instellingen</h1>
-    <!-- volledige inhoud volgt zoals eerder afgesproken -->
+
+    <!-- Gebruikersbeheer -->
+    <section class="card" id="gebruikers">
+      <h2>Gebruikersbeheer</h2>
+      <input type="text" id="nieuwe_naam" placeholder="Naam gebruiker">
+      <input type="password" id="nieuw_wachtwoord" placeholder="Wachtwoord">
+      <input type="email" id="nieuw_email" placeholder="E-mailadres">
+      <button onclick="voegGebruikerToe()">Gebruiker toevoegen</button>
+      <ul id="gebruikerslijst"></ul>
+    </section>
+
+    <!-- Rapport-sjablonen -->
+    <section class="card" id="sjablonen">
+      <h2>Upload rapport-sjablonen</h2>
+      <label>Upload aankoopsjabloon Excel: <input type="file"></label><br>
+      <label>Upload taxatiesjabloon Excel: <input type="file"></label>
+    </section>
+
+    <!-- Motorgegevens -->
+    <section class="card" id="motor">
+      <h2>Upload motorgegevens</h2>
+      <label>Motortabel (.xlsx): <input type="file"></label>
+    </section>
+
+    <!-- Mailkoppeling -->
+    <section class="card" id="mail">
+      <h2>Mailinstellingen</h2>
+      <input type="text" placeholder="SMTP-server">
+      <input type="text" placeholder="Poort">
+      <input type="text" placeholder="Gebruikersnaam">
+      <input type="password" placeholder="Wachtwoord">
+      <input type="email" placeholder="Afzenderadres">
+      <button>Opslaan</button>
+    </section>
+
+    <!-- Opslagkoppeling -->
+    <section class="card" id="opslag">
+      <h2>Externe opslag koppeling</h2>
+      <input type="url" placeholder="API endpoint of opslag-URL">
+      <button>Opslaan koppeling</button>
+    </section>
+
+    <!-- Excel hoofdstuk uploads -->
+    <section class="card" id="excel">
+      <h2>Upload rapportonderdelen (Excel per hoofdstuk)</h2>
+      <table>
+        <thead>
+          <tr><th>Hoofdstuk</th><th>Upload Excel</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Motor</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_motor_excel')"></td></tr>
+          <tr><td>Romp</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_romp_excel')"></td></tr>
+          <tr><td>Elektrisch</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_elektra_excel')"></td></tr>
+          <tr><td>Gasinstallatie</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_gas_excel')"></td></tr>
+          <tr><td>Veiligheid</td><td><input type="file" accept=".xlsx" onchange="saveToLocalStorage(this, 'rapport_veiligheid_excel')"></td></tr>
+        </tbody>
+      </table>
+    </section>
   </main>
+
+  <script>
+    function saveToLocalStorage(input, key) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        localStorage.setItem(key, e.target.result);
+        alert('Bestand opgeslagen in browser voor: ' + key);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    const gebruikersKey = "brunsmann_gebruikers";
+
+    function laadGebruikers() {
+      const lijst = document.getElementById("gebruikerslijst");
+      lijst.innerHTML = "";
+      const opgeslagen = JSON.parse(localStorage.getItem(gebruikersKey) || "[]");
+      opgeslagen.forEach((gebruiker, index) => {
+        const item = document.createElement("li");
+        item.innerHTML = `<b>${gebruiker.naam}</b> – ${gebruiker.email}
+          <button onclick="verwijderGebruiker(${index})">Verwijder</button>
+          <button onclick="wijzigGebruiker(${index})">Wijzig</button>`;
+        lijst.appendChild(item);
+      });
+    }
+
+    function voegGebruikerToe() {
+      const naam = document.getElementById("nieuwe_naam").value;
+      const wachtwoord = document.getElementById("nieuw_wachtwoord").value;
+      const email = document.getElementById("nieuw_email").value;
+      if (!naam || !wachtwoord || !email) return alert("Vul alles in.");
+
+      const gebruikers = JSON.parse(localStorage.getItem(gebruikersKey) || "[]");
+      gebruikers.push({ naam, wachtwoord, email });
+      localStorage.setItem(gebruikersKey, JSON.stringify(gebruikers));
+      laadGebruikers();
+    }
+
+    function verwijderGebruiker(index) {
+      const gebruikers = JSON.parse(localStorage.getItem(gebruikersKey) || "[]");
+      gebruikers.splice(index, 1);
+      localStorage.setItem(gebruikersKey, JSON.stringify(gebruikers));
+      laadGebruikers();
+    }
+
+    function wijzigGebruiker(index) {
+      const gebruikers = JSON.parse(localStorage.getItem(gebruikersKey) || "[]");
+      const gebruiker = gebruikers[index];
+      const nieuweNaam = prompt("Nieuwe naam:", gebruiker.naam);
+      const nieuwEmail = prompt("Nieuw e-mailadres:", gebruiker.email);
+      if (nieuweNaam && nieuwEmail) {
+        gebruiker.naam = nieuweNaam;
+        gebruiker.email = nieuwEmail;
+        localStorage.setItem(gebruikersKey, JSON.stringify(gebruikers));
+        laadGebruikers();
+      }
+    }
+
+    window.onload = laadGebruikers;
+  </script>
 </body>
 </html>
