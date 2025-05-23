@@ -3,120 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <title>Rapport – Motor</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="/js/config.js"></script>
-  <script src="/js/app.js"></script>
-  <style>
-    textarea, select, input[type="text"] {
-      width: 100%;
-      margin-bottom: 1em;
-    }
-    .labelblok {
-      font-weight: bold;
-      margin-top: 1em;
-    }
-    .preview {
-      max-width: 300px;
-      margin-top: 10px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
+  <script src="sidebar_loader.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <script src="excel_loader.js" defer></script>
 </head>
 <body>
-  <h1>Motor</h1>
-  <p>Inspectie van de inbouwmotor en aandrijfsysteem. Er wordt gekeken naar de algehele staat, werking, lekkages en informatie op het typeplaatje.</p>
-
-  <label class="labelblok">Motortype:</label>
-  <input type="text" id="motor_type" placeholder="Bijv. Yanmar 3YM30" />
-
-  <button onclick="zoekMotorInfo()">🔍 Zoek motorgegevens</button>
-  <button onclick="vraagMotorsuggestie()">💡 AI-aanvulling</button>
-
-  <label class="labelblok">Cilinders:</label>
-  <input type="text" id="motor_cilinders" />
-
-  <label class="labelblok">Vermogen (PK):</label>
-  <input type="text" id="motor_pk" />
-
-  <label class="labelblok">Brandstof:</label>
-  <select id="motor_brandstof">
-    <option value="">-- Kies brandstof --</option>
-    <option>Diesel</option>
-    <option>Benzine</option>
-    <option>Elektrisch</option>
-    <option>Hybride</option>
-  </select>
-
-  <label class="labelblok">Opmerkingen:</label>
-  <textarea id="motor_opmerkingen" rows="4"></textarea>
-
-  <label class="labelblok">Foto motorplaatje:</label>
-  <input type="file" accept="image/*" onchange="toonMotorPreview(event)">
-  <img id="motor_foto_preview" class="preview" src="">
-
-  <script>
-    // Laad motortype vanuit algemene gegevens (indien aanwezig)
-    document.addEventListener("DOMContentLoaded", () => {
-      const algemene = JSON.parse(localStorage.getItem("algemene_gegevens"));
-      if (algemene && algemene.motor_type) {
-        document.getElementById("motor_type").value = algemene.motor_type;
-      }
-    });
-
-    function toonMotorPreview(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        document.getElementById("motor_foto_preview").src = event.target.result;
-        localStorage.setItem("motor_foto", event.target.result);
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function vraagMotorsuggestie() {
-      const type = document.getElementById("motor_type").value;
-      if (!OPENAI_API_KEY || !type) return alert("Vul eerst het motortype in en zorg voor een API-sleutel.");
-      const prompt = `Geef specificaties van de bootmotor ${type}: aantal cilinders, vermogen in pk, en brandstoftype. Beschrijf dit kort.`;
-      fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + OPENAI_API_KEY
-        },
-        body: JSON.stringify({
-          model: "gpt-4",
-          messages: [{ role: "user", content: prompt }],
-          max_tokens: 200
-        })
-      }).then(r => r.json()).then(data => {
-        document.getElementById("motor_opmerkingen").value = data.choices[0].message.content.trim();
-      });
-    }
-
-    async function zoekMotorInfo() {
-      const input = document.getElementById("motor_type").value.toLowerCase();
-      const bestanden = JSON.parse(localStorage.getItem("motor_merken")) || [];
-      for (const merk of bestanden) {
-        const file = localStorage.getItem("motorbestand_" + merk);
-        if (!file) continue;
-
-        const wb = XLSX.read(file, { type: "base64" });
-        const sheet = wb.Sheets[wb.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-
-        const gevonden = json.find(r => (r.Motortype || "").toLowerCase() === input);
-        if (gevonden) {
-          document.getElementById("motor_cilinders").value = gevonden.Cilinders || "";
-          document.getElementById("motor_pk").value = gevonden.PK || "";
-          document.getElementById("motor_brandstof").value = gevonden.Brandstof || "";
-          document.getElementById("motor_opmerkingen").value = gevonden.Opmerkingen || "";
-          return;
-        }
-      }
-
-      alert("Motortype niet gevonden in de beschikbare Excelbestanden.");
-    }
-  </script>
+  <div id="sidebar-container"></div>
+  <main>
+    <h1>Rapport – Motor</h1>
+    <section class="card">
+      <p>Hieronder zie je de velden uit het hoofdstuk 'Motor' zoals ingeladen uit het Excelbestand.</p>
+      <div id="vragen-container">Laden...</div>
+    </section>
+  </main>
 </body>
 </html>
