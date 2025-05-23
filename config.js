@@ -1,10 +1,3 @@
-// Configuratiebestand
-const OPENAI_API_KEY = ""; // Vul hier je API-key in als je AI-suggesties wilt gebruiken
 
-const DEFAULT_THEME = {
-  primaryColor: "#007bff",
-  textColor: "#000000",
-  backgroundColor: "#ffffff",
-  fontSize: "16px",
-  borderRadius: "6px"
-};
+export const SUPABASE_URL = "https://ozkzovwlcukbmhmlrlmz.supabase.co";
+export const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96a3pvdndsY3VrYm1obWxybG16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMjY3MzMsImV4cCI6MjA2MzYwMjczM30.4cu9aBV1UJ8dVsiHfQDrSJEaPyqE0rtV6COFkDIaxJU";

@@ -6,7 +6,8 @@
   <link rel="stylesheet" href="style.css">
   <script src="sidebar_loader.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
-  <script src="excel_loader.js" defer></script>
+  <script type="module" src="config.js"></script>
+  <script type="module" src="supabase.js"></script>
 </head>
 <body>
   <div id="sidebar-container"></div>
@@ -14,8 +15,93 @@
     <h1>Rapport – Motor</h1>
     <section class="card">
       <p>Hieronder zie je de velden uit het hoofdstuk 'Motor' zoals ingeladen uit het Excelbestand.</p>
-      <div id="vragen-container">Laden...</div>
+      <form id="rapport-form">
+        <div id="vragen-container">Laden...</div>
+        <button type="submit">Opslaan in Supabase</button>
+      </form>
     </section>
   </main>
+
+  <script type="module">
+    import { supabase, slaRapportOp } from './supabase.js';
+
+    const container = document.getElementById("vragen-container");
+    const form = document.getElementById("rapport-form");
+    const hoofdstukKey = "rapport_motor_excel";
+
+    const base64 = localStorage.getItem(hoofdstukKey);
+    if (!base64) {
+      container.innerHTML = "<p style='color:red;'>Geen Excel gevonden in instellingen.</p>";
+    } else {
+      try {
+        const binary = atob(base64.split(",")[1]);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+
+        const workbook = XLSX.read(bytes, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(sheet);
+
+        container.innerHTML = "";
+
+        data.forEach((item, index) => {
+          const div = document.createElement("div");
+          div.className = "vraag-blok";
+          div.innerHTML = `
+            <label><strong>${item.onderdeel}</strong><br>
+              ${item.i_tekst ? '<small>' + item.i_tekst + '</small><br>' : ''}
+              ${getInput(item.veldtype, index)}
+            </label>
+            <hr>`;
+          container.appendChild(div);
+        });
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const rapportData = [];
+          data.forEach((item, index) => {
+            const naam = "vraag_" + index;
+            const antwoord = document.forms[0][naam].value;
+            rapportData.push({
+              rapport_id: "test-motor-001",  // dit later dynamisch maken per klant/rapport
+              hoofdstuk: "motor",
+              onderdeel: item.onderdeel,
+              antwoord: antwoord,
+              veldtype: item.veldtype
+            });
+          });
+
+          await slaRapportOp(rapportData);
+        });
+
+        function getInput(type, id) {
+          const name = `vraag_${id}`;
+          if (type === "Ja/Nee") {
+            return `<select name="${name}">
+                      <option value="">Kies...</option>
+                      <option value="Ja">Ja</option>
+                      <option value="Nee">Nee</option>
+                    </select>`;
+          } else if (type === "G/RV/V/M/S") {
+            return `<select name="${name}">
+                      <option value="">Kies...</option>
+                      <option value="G">G</option>
+                      <option value="RV">RV</option>
+                      <option value="V">V</option>
+                      <option value="M">M</option>
+                      <option value="S">S</option>
+                    </select>`;
+          } else {
+            return `<textarea name="${name}" rows="2" cols="40"></textarea>`;
+          }
+        }
+      } catch (e) {
+        container.innerHTML = "<p style='color:red;'>Excel laden mislukt.</p>";
+        console.error(e);
+      }
+    }
+  </script>
 </body>
 </html>
