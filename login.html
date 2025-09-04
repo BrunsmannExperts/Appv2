@@ -1,37 +1,83 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <title>Inloggen – Brunsmann</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Login – Brunsmann Experts</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <main>
-    <section class="card">
-      <h1>Inloggen</h1>
-      <label>Gebruikersnaam<br><input type="text" id="login_naam"></label><br>
-      <label>Wachtwoord<br><input type="password" id="login_wachtwoord"></label><br>
-      <button onclick="checkLogin()">Inloggen</button>
-      <p id="login_fout" style="color: red;"></p>
-    </section>
-  </main>
+  <div style="display:grid;place-items:center;min-height:100vh;padding:24px">
+    <div class="card" style="width:min(520px,100%)">
+      <h1 class="h1">Inloggen</h1>
+      <p class="small">Vul je gebruikersnaam en wachtwoord in.</p>
+      <div class="grid cols-2" style="margin-top:12px">
+        <div>
+          <label class="small">Gebruikersnaam</label>
+          <input id="gebruikersnaam" class="input" placeholder="bijv. expert"/>
+        </div>
+        <div>
+          <label class="small">Wachtwoord</label>
+          <input id="wachtwoord" class="input" type="password" placeholder="••••••••"/>
+        </div>
+      </div>
 
+      <div style="margin-top:8px">
+        <p class="small">Snel inloggen (test): <strong>expert</strong> / <strong>demo123</strong></p>
+      </div>
+
+      <div style="margin-top:16px;display:flex;gap:8px;align-items:center;justify-content:space-between">
+        <div>
+          <button class="btn" id="btnLogin">Inloggen</button>
+        </div>
+        <div>
+          <a class="small" href="wachtwoord_vergeten.html">Wachtwoord vergeten?</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app_storage.js"></script>
   <script>
-    const gebruikersKey = "brunsmann_gebruikers";
+    // Belangrijk: we schrijven GEEN gebruikers naar localStorage.
+    // We laten de bestaande flow intact: als er 'brunsmann_gebruikers' bestaat, wordt daarop gevalideerd.
+    // Extra: fallback die 'expert'/'demo123' accepteert ZONDER te schrijven.
 
-    function checkLogin() {
-      const naam = document.getElementById("login_naam").value;
-      const wachtwoord = document.getElementById("login_wachtwoord").value;
-      const gebruikers = JSON.parse(localStorage.getItem(gebruikersKey) || "[]");
-      const match = gebruikers.find(g => g.naam === naam && g.wachtwoord === wachtwoord);
-
-      if (match) {
-        localStorage.setItem("brunsmann_ingelogd", JSON.stringify(match));
-        window.location.href = "dashboard.html";
-      } else {
-        document.getElementById("login_fout").textContent = "Ongeldige gebruikersnaam of wachtwoord.";
+    // Helper: vind gebruiker in bestaande lijst, als aanwezig
+    function findUserInStorage(naam, wachtwoord){
+      try{
+        const raw = localStorage.getItem('brunsmann_gebruikers');
+        if(!raw) return null;
+        const list = JSON.parse(raw);
+        if(!Array.isArray(list)) return null;
+        return list.find(g => g && g.naam === naam && g.wachtwoord === wachtwoord) || null;
+      }catch(e){
+        return null;
       }
     }
+
+    document.getElementById('btnLogin').addEventListener('click', () => {
+      const naam = document.getElementById('gebruikersnaam').value.trim();
+      const ww = document.getElementById('wachtwoord').value.trim();
+
+      // 1) Bestaande logica: check lokale gebruikerslijst (als aanwezig)
+      const hit = findUserInStorage(naam, ww);
+      if(hit){
+        localStorage.setItem('brunsmann_ingelogd', JSON.stringify({ naam: hit.naam }));
+        location.href = 'dashboard.html';
+        return;
+      }
+
+      // 2) Fallback: accepteer expert/demo123 zonder enige data te schrijven
+      if(naam === 'expert' && ww === 'demo123'){
+        localStorage.setItem('brunsmann_ingelogd', JSON.stringify({ naam: 'expert' }));
+        location.href = 'dashboard.html';
+        return;
+      }
+
+      // 3) Anders: foutmelding
+      alert('Onjuiste inloggegevens.');
+    });
   </script>
 </body>
 </html>
