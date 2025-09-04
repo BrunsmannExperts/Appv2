@@ -1,39 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard – Brunsmann</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="sidebar_loader.js"></script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Dashboard – Brunsmann Experts</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <div id="sidebar-container"></div>
   <main>
     <section class="card">
-      <h1>Welkom, <span id="gebruiker_naam"></span></h1>
-      <p>Kies een optie via het menu hiernaast.</p>
-      <button onclick="uitloggen()">Uitloggen</button>
+      <h1>Dashboard</h1>
+      <p class="small">Welkom bij Brunsmann Experts. Je bent ingelogd.</p>
+      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <a href="klanten_overzicht.html" class="btn">Klanten</a>
+        <a href="instellingen.html" class="btn secondary">Instellingen</a>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn danger" id="logout">Uitloggen</button>
+      </div>
     </section>
   </main>
 
   <script>
-    const actiefKey = "brunsmann_ingelogd";
+    // Guard: check if ingelogd, anders terug naar login.html
+    let user = null;
+    try {
+      user = JSON.parse(localStorage.getItem("brunsmann_ingelogd") || "null");
+    } catch(e){ user = null; }
 
-    function checkLogin() {
-      const user = JSON.parse(localStorage.getItem(actiefKey));
-      if (!user) {
-        window.location.href = "login.html";
-      } else {
-        document.getElementById("gebruiker_naam").textContent = user.naam;
-      }
+    if(!user){
+      // Als fallback expert/demo123 is gebruikt, dan staat er in localStorage ook een object met naam:expert.
+      // Dus als er echt niets staat: terug naar login.
+      location.href = "login.html";
     }
 
-    function uitloggen() {
-      localStorage.removeItem(actiefKey);
-      window.location.href = "login.html";
-    }
-
-    window.onload = checkLogin;
+    document.getElementById("logout").addEventListener("click", ()=>{
+      localStorage.removeItem("brunsmann_ingelogd");
+      location.href = "login.html";
+    });
   </script>
 </body>
 </html>
