@@ -7,9 +7,12 @@
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <main>
+  <!-- Sidebar container for your existing sidebar loader -->
+  <div id="sidebar-container"></div>
+
+  <main style="margin-left:220px;padding:24px">
     <section class="card">
-      <h1>Dashboard</h1>
+      <h1 class="h1">Dashboard</h1>
       <p class="small">Welkom bij Brunsmann Experts. Je bent ingelogd.</p>
       <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
         <a href="klanten_overzicht.html" class="btn">Klanten</a>
@@ -21,6 +24,7 @@
     </section>
   </main>
 
+  <script src="sidebar_loader.js"></script>
   <script>
     // Guard: check if ingelogd, anders terug naar login.html
     let user = null;
@@ -29,8 +33,6 @@
     } catch(e){ user = null; }
 
     if(!user){
-      // Als fallback expert/demo123 is gebruikt, dan staat er in localStorage ook een object met naam:expert.
-      // Dus als er echt niets staat: terug naar login.
       location.href = "login.html";
     }
 
